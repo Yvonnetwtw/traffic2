@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>Mode A3 賓果標誌配對卡</title>
+    <style>
+        /* --- A4 紙張設定 --- */
+        @page { size: A4; margin: 0; }
+        body { margin: 0; background: #eee; font-family: "Microsoft JhengHei", sans-serif; }
+        
+        .page {
+            width: 210mm; height: 297mm; background: white; margin: 20px auto;
+            padding: 15mm; /* 留邊距，避免列印切到 */
+            box-sizing: border-box;
+            
+            /* ========= 核心教學：CSS Grid 九宮格 ========= */
+            display: grid;
+            /* 橫向切 3 等份，直向切 3 等份 */
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 5mm; /* 卡片之間的間距 (剪裁空間) */
+        }
+
+        /* --- 單張賓果卡片設計 --- */
+        .bingo-card {
+            border: 2px dashed #aaa; /* 灰色虛線，方便學生剪下來 */
+            border-radius: 8px;      /* 圓角比較不割手 */
+            padding: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #fff;
+            position: relative;
+        }
+
+        /* --- 圖片設定 --- */
+        .bingo-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* 完整顯示圖片，不要裁切，因為特徵很重要 */
+        }
+
+        /* --- (選用) 卡片編號，方便老師核對 --- */
+        .card-id {
+            position: absolute;
+            bottom: 2px; right: 5px;
+            font-size: 10pt; color: #ccc;
+        }
+
+        @media print { body { background: none; } .page { margin: 0; } * { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+    </style>
+</head>
+<body>
+
+    <div class="page">
+        
+        <div class="bingo-card">
+            <img src="images/sign01.jpg">
+            <div class="card-id">01</div>
+        </div>
+
+        <div class="bingo-card">
+            <img src="images/sign02.jpg">
+            <div class="card-id">02</div>
+        </div>
+
+        <div class="bingo-card">
+            <img src="images/sign03.jpg">
+            <div class="card-id">03</div>
+        </div>
+
+        <div class="bingo-card">
+            <img src="images/sign01.jpg"> <div class="card-id">04</div>
+        </div>
+
+        <div class="bingo-card">
+            <img src="images/sign02.jpg">
+            <div class="card-id">05</div>
+        </div>
+
+        <div class="bingo-card">
+            <img src="images/sign03.jpg">
+            <div class="card-id">06</div>
+        </div>
+
+        <div class="bingo-card">
+            <img src="images/sign01.jpg">
+            <div class="card-id">07</div>
+        </div>
+
+        <div class="bingo-card">
+            <img src="images/sign02.jpg">
+            <div class="card-id">08</div>
+        </div>
+
+        <div class="bingo-card">
+            <img src="images/sign03.jpg">
+            <div class="card-id">09</div>
+        </div>
+
+    </div>
+
+</body>
+</html>

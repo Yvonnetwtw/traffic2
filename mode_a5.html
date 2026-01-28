@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>Mode A5 形狀分類基地卡</title>
+    <style>
+        /* --- A4 紙張設定 --- */
+        @page { size: A4; margin: 0; }
+        body { margin: 0; background: #eee; font-family: "Microsoft JhengHei", sans-serif; }
+        
+        .page {
+            width: 210mm; height: 297mm; background: white; margin: 20px auto;
+            padding: 10mm; box-sizing: border-box;
+            /* 改成 1 欄 3 列，讓卡片變很大，橫向切開 */
+            display: grid;
+            grid-template-columns: 1fr; 
+            grid-template-rows: repeat(3, 1fr);
+            gap: 10mm;
+        }
+
+        /* --- 類別卡 (基地) 設定 --- */
+        .zone-card {
+            border: 4px dashed #999; /* 虛線框，表示這是放置區 */
+            border-radius: 15px;
+            display: flex; 
+            flex-direction: row; /* 左圖右文 */
+            align-items: center; justify-content: center;
+            padding: 20px;
+            position: relative;
+            background-color: #fafafa;
+        }
+
+        /* --- 文字區設定 --- */
+        .text-area {
+            flex: 1; text-align: center;
+            font-size: 36pt; font-weight: bold; color: #333;
+            border-left: 2px solid #ccc; /* 中間加條線區隔 */
+            margin-left: 20px;
+            padding-left: 20px;
+        }
+        .text-sub { font-size: 16pt; color: #666; font-weight: normal; margin-top: 5px; }
+
+        /* ========= 本週教學重點：CSS 幾何圖形 ========= */
+
+        /* 1. 警告 (黃色三角形) - CSS 邊框魔術 */
+        .shape-triangle {
+            width: 0; height: 0;
+            /* 原理：左右透明邊框擠壓，底部有色邊框形成三角形 */
+            border-left: 60px solid transparent;
+            border-right: 60px solid transparent;
+            border-bottom: 100px solid #fbc02d; /* 黃色 */
+            margin-bottom: 10px; /* 位置微調 */
+        }
+        .shape-container {
+            width: 150px; display: flex; justify-content: center; align-items: center;
+        }
+
+        /* 2. 禁制 (紅色圓形) - Border Radius */
+        .shape-circle {
+            width: 100px; height: 100px;
+            background-color: white; /* 中間白 */
+            border: 15px solid #d32f2f; /* 紅框 */
+            border-radius: 50%; /* 50% 就會變正圓 */
+        }
+
+        /* 3. 指示 (藍色方形) - 基礎 Box */
+        .shape-square {
+            width: 120px; height: 120px;
+            background-color: #1976d2; /* 藍底 */
+            border-radius: 10px; /* 稍微圓角 */
+            border: 5px solid white;
+            box-shadow: 0 0 0 5px #1976d2; /* 雙重邊框效果 */
+        }
+
+        /* =========================================== */
+
+        @media print { body { background: none; } .page { margin: 0; } * { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+    </style>
+</head>
+<body>
+
+    <div class="page">
+        
+        <div class="zone-card">
+            <div class="shape-container">
+                <div class="shape-triangle"></div>
+            </div>
+            <div class="text-area">
+                警告<br>
+                <div class="text-sub">Warning</div>
+            </div>
+        </div>
+
+        <div class="zone-card">
+            <div class="shape-circle"></div>
+            <div class="text-area">
+                禁制<br>
+                <div class="text-sub">Prohibitory</div>
+            </div>
+        </div>
+
+        <div class="zone-card">
+            <div class="shape-square"></div>
+            <div class="text-area">
+                指示<br>
+                <div class="text-sub">Indication</div>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>

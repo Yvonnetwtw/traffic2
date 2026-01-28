@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>Mode A2 法規配對 (紅藍卡)</title>
+    <style>
+        /* --- A4 紙張與版面設定 --- */
+        @page { size: A4; margin: 0; }
+        body { margin: 0; background: #eee; font-family: "Microsoft JhengHei", sans-serif; }
+        .page {
+            width: 210mm; height: 297mm; background: white; margin: 20px auto;
+            padding: 10mm; box-sizing: border-box;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 2mm;
+        }
+
+        /* --- 卡牌基礎外觀 --- */
+        .card {
+            border: 2px solid #ccc; border-radius: 8px;
+            display: flex; flex-direction: column; 
+            overflow: hidden; position: relative;
+            justify-content: center; align-items: center;
+        }
+
+        /* --- 圖片與文字設定 --- */
+        .card-img { width: 85%; height: 85%; object-fit: contain; }
+        .card-text { font-size: 24pt; font-weight: bold; text-align: center; padding: 10px; width: 100%; }
+
+        /* ========= 紅藍卡切換開關 (本週重點) ========= */
+
+        /* 紅色卡 (圖卡)：背景紅，文字隱藏 */
+        .card.red {
+            background-color: #ffebee; /* 淡紅底 */
+            border-color: #ef5350;     /* 深紅框 */
+        }
+        .card.red .card-text { display: none; } /* 紅卡隱藏文字 */
+
+        /* 藍色卡 (字卡)：背景藍，圖片隱藏 */
+        .card.blue {
+            background-color: #e3f2fd; /* 淡藍底 */
+            border-color: #42a5f5;     /* 深藍框 */
+        }
+        .card.blue .card-img { display: none; } /* 藍卡隱藏圖片 */
+
+        /* =========================================== */
+
+        @media print { body { background: none; } .page { margin: 0; } * { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+    </style>
+</head>
+<body>
+
+    <div class="page">
+        
+        <div class="card red">
+            <img src="images/sign01.jpg" class="card-img">
+            <div class="card-text">禁止左轉</div>
+        </div>
+
+        <div class="card blue">
+            <img src="images/sign01.jpg" class="card-img">
+            <div class="card-text">禁止左轉</div>
+        </div>
+
+
+        <div class="card red">
+            <img src="images/sign02.jpg" class="card-img">
+            <div class="card-text">當心兒童</div>
+        </div>
+
+        <div class="card blue">
+            <img src="images/sign02.jpg" class="card-img">
+            <div class="card-text">當心兒童</div>
+        </div>
+
+
+        <div class="card red">
+            <img src="images/sign03.jpg" class="card-img">
+            <div class="card-text">禁止停車</div>
+        </div>
+
+        <div class="card blue">
+            <img src="images/sign03.jpg" class="card-img">
+            <div class="card-text">禁止停車</div>
+        </div>
+
+        <div class="card"></div>
+        <div class="card"></div>
+        <div class="card"></div>
+
+    </div>
+
+</body>
+</html>
