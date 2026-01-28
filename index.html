@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>交通判官卡牌 (Mode A1)</title>
+    <style>
+        /* 這裡是樣式設定，不用動它 */
+        @page { size: A4; margin: 0; }
+        body { margin: 0; background: #eee; font-family: "Microsoft JhengHei", sans-serif; }
+        .page {
+            width: 210mm; height: 297mm; background: white; margin: 20px auto;
+            padding: 10mm; box-sizing: border-box;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* 3行 */
+            grid-template-rows: repeat(3, 1fr);    /* 3列 */
+            gap: 2mm;
+        }
+        .card {
+            border: 1px dashed #999; border-radius: 8px;
+            display: flex; flex-direction: column; overflow: hidden;
+            position: relative; background: white;
+        }
+        .card-img { flex: 7; width: 100%; height: 100%; object-fit: cover; border-bottom: 2px solid #333; }
+        .card-text { flex: 3; display: flex; align-items: center; justify-content: center; padding: 5px; text-align: center; font-weight: bold; font-size: 14pt; color: #333; }
+        @media print { body { background: none; } .page { margin: 0; } * { -webkit-print-color-adjust: exact; print-color-adjust: exact; } }
+    </style>
+</head>
+<body>
+
+    <div class="page">
+        
+        <div class="card">
+            <img src="images/card01.png" class="card-img">
+            <div class="card-text">題目 1：這裡填寫中文題目</div>
+        </div>
+
+        <div class="card">
+            <img src="images/card02.png" class="card-img">
+            <div class="card-text">題目 2：這裡填寫中文題目</div>
+        </div>
+
+        <div class="card">
+            <img src="images/card03.png" class="card-img">
+            <div class="card-text">題目 3：這裡填寫中文題目</div>
+        </div>
+
+        <div class="card">
+            <img src="images/card04.png" class="card-img">
+            <div class="card-text">題目 4：這裡填寫中文題目</div>
+        </div>
+
+        <div class="card">
+            <img src="images/card05.png" class="card-img">
+            <div class="card-text">題目 5：這裡填寫中文題目</div>
+        </div>
+
+        <div class="card">
+            <img src="images/card06.png" class="card-img">
+            <div class="card-text">題目 6：這裡填寫中文題目</div>
+        </div>
+
+        <div class="card"></div>
+        <div class="card"></div>
+        <div class="card"></div>
+
+    </div>
+
+</body>
+</html>
