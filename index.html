@@ -20,7 +20,7 @@
         .info { padding: 12px; background: #f1f5f9; text-align: center; }
         .copy-btn { font-size: 11px; background: #334155; color: white; padding: 6px; border-radius: 4px; margin-top: 8px; cursor: pointer; word-break: break-all; }
         .copy-btn:hover { background: #000; }
-        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #10b981; color: white; padding: 10px 20px; border-radius: 20px; display: none; }
+        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #10b981; color: white; padding: 10px 20px; border-radius: 20px; display: none; z-index: 100; }
     </style>
 </head>
 <body>
@@ -31,11 +31,11 @@
     </div>
 
     <div class="nav">
-        <button onclick="render('0', 's', 1, 23)" class="active">資料夾 0 (標誌)</button>
-        <button onclick="render('1', 'piece_', 0, 15)">資料夾 1 (零件)</button>
-        <button onclick="render('2', 'piece_', 0, 15)">資料夾 2 (零件)</button>
-        <button onclick="render('3', 'piece_', 0, 15)">資料夾 3 (零件)</button>
-        <button onclick="render('4', 'piece_', 0, 15)">資料夾 4 (零件)</button>
+        <button onclick="render(this, '0', 's', 1, 23)" class="active">資料夾 0 (標誌)</button>
+        <button onclick="render(this, '1', 'piece_', 0, 15)">資料夾 1 (零件)</button>
+        <button onclick="render(this, '2', 'piece_', 0, 15)">資料夾 2 (零件)</button>
+        <button onclick="render(this, '3', 'piece_', 0, 15)">資料夾 3 (零件)</button>
+        <button onclick="render(this, '4', 'piece_', 0, 15)">資料夾 4 (零件)</button>
     </div>
 
     <div id="gallery" class="gallery"></div>
@@ -44,29 +44,34 @@
     <script>
         const baseUrl = "https://yvonnetwtw.github.io/traffic2/images/";
 
-        function render(folder, prefix, start, end) {
+        function render(btnElement, folder, prefix, start, end) {
             // 更新按鈕狀態
-            document.querySelectorAll('button').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            if(btnElement) {
+                document.querySelectorAll('button').forEach(btn => btn.classList.remove('active'));
+                btnElement.classList.add('active');
+            }
 
             const container = document.getElementById('gallery');
-            container.innerHTML = '';
+            container.innerHTML = '正在載入圖片...'; // 加入讀取提示
 
+            let htmlContent = '';
             for (let i = start; i <= end; i++) {
                 const fileName = `${prefix}${i}.png`;
                 const fullUrl = `${baseUrl}${folder}/${fileName}`;
 
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.innerHTML = `
-                    <div class="img-container"><img src="${fullUrl}" loading="lazy"></div>
-                    <div class="info">
-                        <strong>${fileName}</strong>
-                        <div class="copy-btn" onclick="copy('${fullUrl}')">點我複製網址</div>
+                htmlContent += `
+                    <div class="card">
+                        <div class="img-container">
+                            <img src="${fullUrl}" loading="lazy" onerror="this.src='https://placehold.co/200x200?text=No+Image'">
+                        </div>
+                        <div class="info">
+                            <strong>${fileName}</strong>
+                            <div class="copy-btn" onclick="copy('${fullUrl}')">點我複製網址</div>
+                        </div>
                     </div>
                 `;
-                container.appendChild(card);
             }
+            container.innerHTML = htmlContent;
         }
 
         function copy(text) {
@@ -74,11 +79,16 @@
                 const toast = document.getElementById('toast');
                 toast.style.display = 'block';
                 setTimeout(() => toast.style.display = 'none', 2000);
+            }).catch(err => {
+                console.error('無法複製網址: ', err);
             });
         }
 
-        // 初始化顯示資料夾 0
-        window.onload = () => render('0', 's', 1, 23);
+        // 修正點：使用 DOMContentLoaded 確保網頁載入後才執行
+        document.addEventListener('DOMContentLoaded', () => {
+            const firstBtn = document.querySelector('button');
+            render(firstBtn, '0', 's', 1, 23);
+        });
     </script>
 </body>
 </html>
