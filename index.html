@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>交通標誌教學圖庫 - 學生專用</title>
+    <style>
+        :root { --primary: #2563eb; --bg: #f8fafc; }
+        body { font-family: "Microsoft JhengHei", sans-serif; background: var(--bg); margin: 0; padding: 20px; color: #1e293b; }
+        .header { text-align: center; margin-bottom: 30px; }
+        .nav { display: flex; justify-content: center; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; }
+        button { padding: 12px 24px; border: none; background: white; border-radius: 8px; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: 0.3s; font-weight: bold; }
+        button:hover { background: var(--primary); color: white; }
+        button.active { background: var(--primary); color: white; }
+        .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; max-width: 1200px; margin: 0 auto; }
+        .card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; transition: 0.3s; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px rgba(0,0,0,0.1); }
+        .img-container { width: 100%; aspect-ratio: 1; background: #fff; display: flex; align-items: center; justify-content: center; padding: 10px; box-sizing: border-box; }
+        .card img { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .info { padding: 12px; background: #f1f5f9; text-align: center; }
+        .copy-btn { font-size: 11px; background: #334155; color: white; padding: 6px; border-radius: 4px; margin-top: 8px; cursor: pointer; word-break: break-all; }
+        .copy-btn:hover { background: #000; }
+        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #10b981; color: white; padding: 10px 20px; border-radius: 20px; display: none; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>🚦 交通標誌圖片資源庫</h1>
+        <p>點擊上方按鈕切換資料夾，點擊深色網址框即可「自動複製」連結到作業中使用</p>
+    </div>
+
+    <div class="nav">
+        <button onclick="render('0', 's', 1, 23)" class="active">資料夾 0 (標誌)</button>
+        <button onclick="render('1', 'piece_', 0, 15)">資料夾 1 (零件)</button>
+        <button onclick="render('2', 'piece_', 0, 15)">資料夾 2 (零件)</button>
+        <button onclick="render('3', 'piece_', 0, 15)">資料夾 3 (零件)</button>
+        <button onclick="render('4', 'piece_', 0, 15)">資料夾 4 (零件)</button>
+    </div>
+
+    <div id="gallery" class="gallery"></div>
+    <div id="toast" class="toast">連結已複製！</div>
+
+    <script>
+        const baseUrl = "https://yvonnetwtw.github.io/traffic2/images/";
+
+        function render(folder, prefix, start, end) {
+            // 更新按鈕狀態
+            document.querySelectorAll('button').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            const container = document.getElementById('gallery');
+            container.innerHTML = '';
+
+            for (let i = start; i <= end; i++) {
+                const fileName = `${prefix}${i}.png`;
+                const fullUrl = `${baseUrl}${folder}/${fileName}`;
+
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <div class="img-container"><img src="${fullUrl}" loading="lazy"></div>
+                    <div class="info">
+                        <strong>${fileName}</strong>
+                        <div class="copy-btn" onclick="copy('${fullUrl}')">點我複製網址</div>
+                    </div>
+                `;
+                container.appendChild(card);
+            }
+        }
+
+        function copy(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                const toast = document.getElementById('toast');
+                toast.style.display = 'block';
+                setTimeout(() => toast.style.display = 'none', 2000);
+            });
+        }
+
+        // 初始化顯示資料夾 0
+        window.onload = () => render('0', 's', 1, 23);
+    </script>
+</body>
+</html>
