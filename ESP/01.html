@@ -39,7 +39,8 @@
             --shadow-hard: 0 6px 0 rgba(0, 0, 0, 0.2);
             --highlight-inner: inset 0 4px 6px rgba(255, 255, 255, 0.6);
             --glow-green: 0 0 20px #69f0ae, 0 0 10px #00e676;
-                   --text-dark: #1e293b;
+            
+            --text-dark: #1e293b;
             --text-light: #ffffff;
         }
 
@@ -52,10 +53,6 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-          html, body {
-        height: auto;
-         }
-
         body {
             background-color: #0f172a;
             display: flex;
@@ -63,19 +60,20 @@
             align-items: center;
             min-height: 100vh;
             min-height: 100dvh;
-            overflow-y: auto;
+            overflow: hidden;
         }
 
         #game-container {
             width: 100%;
             max-width: 420px;
-            min-height: 100vh;
+            height: 100vh;
+            height: 100dvh;
             background: var(--grad-sky);
             position: relative;
             display: flex;
             flex-direction: column;
             box-shadow: 0 0 40px rgba(0,0,0,0.8);
-            overflow: auto;
+            overflow: hidden;
         }
 
         /* --- 0. CHARACTER SELECTION OVERLAY --- */
@@ -234,9 +232,9 @@
 
         /* --- 2. MIDDLE AREA (QUESTION PANEL) --- */
         .middle-area {
-            flex: 0.5;
+            flex: 1;
             background: var(--grad-glass);
-            padding: var(--space-2);
+            padding: var(--space-4) var(--space-3) var(--space-2) var(--space-3);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
