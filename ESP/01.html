@@ -68,7 +68,6 @@
 
         #game-container {
             width: 100%;
-            max-width: 200px;
             min-height: 100vh;
             background: var(--grad-sky);
             position: relative;
@@ -155,7 +154,8 @@
 
         /* --- 1. TOP AREA (BOARD) --- */
         .board-area {
-            flex: 0 0 38vh;
+            height: 25vh;
+            flex: none;
             position: relative;
             z-index: 5;
             background: url('image_146ac0.png') center bottom / cover no-repeat;
@@ -234,7 +234,7 @@
 
         /* --- 2. MIDDLE AREA (QUESTION PANEL) --- */
         .middle-area {
-            flex: 0.5;
+            flex: 1;
             background: var(--grad-glass);
             padding: var(--space-2);
             display: flex;
@@ -248,6 +248,7 @@
             border-top-right-radius: 24px;
             margin-top: -20px;
             backdrop-filter: blur(6px);
+            over-flow-y: auto;
         }
 
         .timer-badge {
@@ -424,6 +425,8 @@
 
         /* --- 3. BOTTOM AREA (CONTROLS) --- */
         .bottom-area {
+            position: sticky;
+            bottom: 0;
             background: linear-gradient(180deg, #1e3a8a 0%, #0f172a 100%);
             padding: var(--space-3) var(--space-2);
             display: flex;
