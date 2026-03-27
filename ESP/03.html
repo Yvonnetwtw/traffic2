@@ -728,11 +728,16 @@
         </div>
     </div>
 
-    <div class="board-area" id="board">
-        <div class="top-bar">
-            <div class="badge level-badge">Level 1</div>
-        </div>
+  <div class="top-bar">
+    <div class="badge level-badge" id="level-label">Level 1</div>
+
+    <div>
+        <button onclick="setLevel(1)">L1</button>
+        <button onclick="setLevel(2)">L2</button>
+        <button onclick="setLevel(3)">L3</button>
     </div>
+</div>
+		
 
     <div class="middle-area">
         <div class="timer-badge" id="ui-timer" style="display: none;">⏳ 5s</div>
@@ -852,9 +857,12 @@ let currentLevel = 1;
 
 function setLevel(level) {
     currentLevel = level;
+
+    document.getElementById("level-label").innerText = "Level " + level;
+
     fetchQuestions();
 }
-
+	
 let currentLevel = 1;
 
 function setLevel(level) {
