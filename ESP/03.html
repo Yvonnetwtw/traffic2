@@ -687,37 +687,29 @@
 
 .score-bar {
     position: fixed;
-    bottom: 90px;   /* adjust height */
+    bottom: 20px;
     left: 0;
     width: 100%;
-    pointer-events: none;
     z-index: 999;
+    pointer-events: none;
 }
 
-.score-bar {
-    position: fixed;
-    bottom: 90px;
-    left: 0;
-    width: 100%;
-    pointer-events: none;
-    z-index: 999;
-}
-
-/* 🔥 LEFT (above Start) */
+/* 🔥 attach to START button */
 .score-left {
     position: absolute;
-    left: 25%;
-    transform: translateX(-50%);
+    left: 18%;   /* adjust to match Start button */
+    bottom: 10px;
 
-    background: linear-gradient(180deg, #ffffff 0%, #e2e8f0 100%);
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-weight: 900;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    box-shadow: 0 6px 12px rgba(0,0,0,0.3);
-    border: 2px solid #fff;
+    transform: translateX(-50%);
+}
+
+/* 🔥 attach to END button */
+.score-right {
+    position: absolute;
+    left: 82%;   /* adjust to match End button */
+    bottom: 10px;
+
+    transform: translateX(-50%);
 }
 
 /* 🔥 RIGHT (above End) */
