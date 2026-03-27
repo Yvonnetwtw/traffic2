@@ -429,21 +429,26 @@
             bottom: 0;
             background: linear-gradient(180deg, #1e3a8a 0%, #0f172a 100%);
             padding: var(--space-3) var(--space-2);
+			
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: var(--space-2);
-            border-top: 4px solid #3b82f6;
+            gap: 8px(--space-2);
+            
+			border-top: 4px solid #3b82f6;
             flex: none;
             box-shadow: inset 0 4px 10px rgba(0,0,0,0.5);
+     	    
+
         }
 
         .btn-action {
-            flex: 1;
-            padding: var(--space-2) 0;
+            padding: 12px 24px;   /* 🔥 smaller */
             border-radius: var(--radius-pill);
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 900;
+    	    min-width: 140px;     /* 🔥 reduce width */
+			border-radius: 30px;
             color: white;
             border: 2px solid #fff;
             box-shadow: var(--shadow-hard), var(--highlight-inner);
@@ -506,6 +511,7 @@
             margin-top: -35px;
             z-index: 10;
             background: #0f172a;
+			flex: 0 0 auto;   /* prevent stretching */
         }
 
         .console-top {
