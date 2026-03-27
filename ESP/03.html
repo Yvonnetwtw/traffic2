@@ -423,8 +423,9 @@
         }
         .option-btn.wrong .opt-text { color: white; }
 
-        /* --- 3. BOTTOM AREA (CONTROLS) --- */
-        .bottom-area {
+        /* --- 3. BOTTOM AREA (CONTROLS) --- 氣死人3*/
+        
+		.bottom-area {
             position: sticky;
             bottom: 0;
             background: linear-gradient(180deg, #1e3a8a 0%, #0f172a 100%);
@@ -433,7 +434,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             
 			border-top: 4px solid #3b82f6;
             flex: none;
@@ -441,23 +442,23 @@
      	    
 
         }
+      //浪費時間
+     .btn-action {
+    flex: 0 0 110px;   /* 🔥 FIX width (no stretch) */
+    
+    padding: 10px 12px;
+    font-size: 14px;
+    font-weight: 900;
 
-        .btn-action {
-			flex: 1;
-            max-width: 140px;   /* 🔥 reduce */
-			padding: 12px 24px;   /* 🔥 smaller */
-            border-radius: var(--radius-pill);
-            font-size: 16px;
-            font-weight: 900;
-    	    min-width: 140px;     /* 🔥 reduce width */
-			border-radius: 30px;
-            color: white;
-            border: 2px solid #fff;
-            box-shadow: var(--shadow-hard), var(--highlight-inner);
-            cursor: pointer;
-            transition: all 0.1s;
-            text-shadow: 0 2px 2px rgba(0,0,0,0.3);
-        }
+    border-radius: 30px;
+    color: white;
+    border: 2px solid #fff;
+    box-shadow: var(--shadow-hard), var(--highlight-inner);
+    cursor: pointer;
+    transition: all 0.1s;
+    text-shadow: 0 2px 2px rgba(0,0,0,0.3);
+}
+		
         .btn-action:active { transform: translateY(6px); box-shadow: 0 0 0 transparent; }
         
         .btn-start { 
@@ -500,7 +501,8 @@
         }
 
         .btn-end { background: linear-gradient(180deg, #ef5350 0%, #c62828 100%); box-shadow: 0 6px 0 #b71c1c, var(--highlight-inner); }
-
+        
+		//氣死人2
         .center-console {
             width: 150px;
             border-radius: 20px;
@@ -513,7 +515,7 @@
             margin-top: -10px;
             z-index: 10;
             background: #0f172a;
-			flex: 0 0 140px;   /* 🔥 reserve space for dice */
+			flex: 0 0 120px;   /* 🔥 reserve space for dice */
         }
 
         .console-top {
