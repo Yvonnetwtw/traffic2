@@ -848,22 +848,38 @@
 
       });
 
-    async function fetchQuestions() {
-   const url = "https://script.google.com/macros/s/AKfycbwKt47CitjEo1CRkuFYxn0S2oWCKeItPtLD29m25dcA07J0Dw20g56Xd9VE20OlekLt/exec?level=1&t=" + new Date().getTime();
+let currentLevel = 1;
+
+function setLevel(level) {
+    currentLevel = level;
+    fetchQuestions();
+}
+
+let currentLevel = 1;
+
+function setLevel(level) {
+    currentLevel = level;
+    fetchQuestions();
+}
+
+async function fetchQuestions() {
+    const url = `https://script.google.com/macros/s/AKfycbwKt47CitjEo1CRkuFYxn0S2oWCKeItPtLD29m25dcA07J0Dw20g56Xd9VE20OlekLt/exec?level=${currentLevel}&t=${new Date().getTime()}`;
 
     try {
         const res = await fetch(url);
         const data = await res.json();
+
         vocabularyList = data;
-		dataReady = true;   // ✅ ADD THIS
-        console.log("✅ Loaded from GAS:", vocabularyList);
-        state.currentWordIndex = 0;   // reset index
+        dataReady = true;
+        state.currentWordIndex = 0;
+
+        console.log("✅ Loaded Level", currentLevel);
 
     } catch (err) {
         console.error("❌ Fetch error:", err);
     }
 }
-   
+	
 
     const boardPath = [
         {x: 10, y: 88, label: "START", type: "start"}, {x: 30, y: 85, label: "1", type: "normal"}, {x: 55, y: 78, label: "2", type: "normal"}, {x: 80, y: 72, label: "3", type: "normal"}, {x: 85, y: 55, label: "4", type: "normal"}, {x: 65, y: 50, label: "5", type: "normal"}, {x: 40, y: 46, label: "6", type: "normal"}, {x: 15, y: 42, label: "7", type: "normal"}, {x: 15, y: 25, label: "8", type: "normal"}, {x: 40, y: 22, label: "9", type: "normal"}, {x: 75, y: 20, label: "END", type: "end"}
