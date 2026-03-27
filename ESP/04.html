@@ -846,10 +846,10 @@
 	document.addEventListener("DOMContentLoaded", function () {
 
 
-    const boardEl = document.getElementById('board');
-    const wordEl = document.getElementById('ui-word');
-    const phoneticEl = document.getElementById('ui-phonetic');
-    const optionBtns = document.querySelectorAll('.option-btn');
+    //const boardEl = document.getElementById('board');
+   // const wordEl = document.getElementById('ui-word');
+   // const phoneticEl = document.getElementById('ui-phonetic');
+   // const optionBtns = document.querySelectorAll('.option-btn');
 
     renderMascots();
     fetchQuestions();
@@ -866,6 +866,11 @@ function setLevel(level) {
     fetchQuestions();
 }
 	
+ let state = {
+        playerPos: 0, npcPos: 0, playerScore: 0, npcScore: 0, currentDice: 0,
+        currentWordIndex: 0, isRolling: false, questionActive: false,
+        playerType: 'cat', npcType: 'bear', gameStarted: false
+    };
 
 
 async function fetchQuestions() {
@@ -877,7 +882,7 @@ async function fetchQuestions() {
 
         vocabularyList = data;
         dataReady = true;
-        state.currentWordIndex = 0;
+       // state.currentWordIndex = 0;
 
         console.log("✅ Loaded Level", currentLevel);
 
@@ -891,12 +896,7 @@ async function fetchQuestions() {
         {x: 10, y: 88, label: "START", type: "start"}, {x: 30, y: 85, label: "1", type: "normal"}, {x: 55, y: 78, label: "2", type: "normal"}, {x: 80, y: 72, label: "3", type: "normal"}, {x: 85, y: 55, label: "4", type: "normal"}, {x: 65, y: 50, label: "5", type: "normal"}, {x: 40, y: 46, label: "6", type: "normal"}, {x: 15, y: 42, label: "7", type: "normal"}, {x: 15, y: 25, label: "8", type: "normal"}, {x: 40, y: 22, label: "9", type: "normal"}, {x: 75, y: 20, label: "END", type: "end"}
     ];
 
-    let state = {
-        playerPos: 0, npcPos: 0, playerScore: 0, npcScore: 0, currentDice: 0,
-        currentWordIndex: 0, isRolling: false, questionActive: false,
-        playerType: 'cat', npcType: 'bear', gameStarted: false
-    };
-
+   
     let timerInterval = null;
     let timeLeft = 5;
     const boardEl = document.getElementById('board');
@@ -981,41 +981,55 @@ if (dataReady && vocabularyList.length > 0) {
         }
     }
 
-    function loadQuestion() {
-      if (vocabularyList.length === 0) {
-       console.warn("⏳ Data not loaded yet");
-       return;
-       }
-	  if (state.currentWordIndex >= vocabularyList.length) state.currentWordIndex = 0; 
-        const q = vocabularyList[state.currentWordIndex];
-        wordEl.innerText = q.word; 
-		phoneticEl.innerText = q.phonetic;
-		const defEl = document.getElementById('ui-definition');
-        defEl.innerText = q.definition;
-        const classes = ['opt-a', 'opt-b', 'opt-c', 'opt-d'];
-      
-	     optionBtns.forEach((btn, idx) => {
-         btn.querySelector('.opt-text').innerText = q.options[idx] || "";
-         btn.classList.remove('correct', 'wrong', 'active');
-         btn.classList.add('option-btn', classes[idx]);
-        });
-		
-        state.questionActive = false;
-        timerEl.style.display = 'none'; clearInterval(timerInterval);
-        progressEl.innerText = `${state.currentWordIndex + 1}/${vocabularyList.length}`;
-        
-        if (state.gameStarted) {
-            diceBtn.disabled = false;
-            diceBtn.innerText = "🎲";
-            diceBtn.classList.add('bling-active');
-            showFeedback("✨ Tap the Mega Dice! ✨", "neutral");
-        } else {
-            diceBtn.disabled = true;
-            diceBtn.classList.remove('bling-active');
-            showFeedback("Click ✨ Start ✨ to begin!", "neutral");
-        }
+
+	
+function loadQuestion() {
+
+    if (vocabularyList.length === 0) {
+        console.warn("⏳ Data not loaded yet");
+        return;
     }
 
+    if (state.currentWordIndex >= vocabularyList.length) {
+        state.currentWordIndex = 0;
+    }
+
+    const q = vocabularyList[state.currentWordIndex];
+
+    wordEl.innerText = q.word;
+    phoneticEl.innerText = q.phonetic;
+    document.getElementById('ui-definition').innerText = q.definition;
+
+    const classes = ['opt-a', 'opt-b', 'opt-c', 'opt-d'];
+
+    optionBtns.forEach((btn, idx) => {
+        btn.querySelector('.opt-text').innerText = q.options[idx] || "";
+        btn.classList.remove('correct', 'wrong', 'active');
+        btn.classList.add('option-btn', classes[idx]);
+    });
+
+    state.questionActive = false;
+    clearInterval(timerInterval);
+    timerEl.style.display = 'none';
+
+    progressEl.innerText = `${state.currentWordIndex + 1}/${vocabularyList.length}`;
+
+    if (state.gameStarted) {
+        diceBtn.disabled = false;
+        diceBtn.innerText = "🎲";
+        diceBtn.classList.add('bling-active');
+        showFeedback("✨ Tap the Mega Dice! ✨", "neutral");
+    } else {
+        diceBtn.disabled = true;
+        diceBtn.classList.remove('bling-active');
+        showFeedback("Click ✨ Start ✨ to begin!", "neutral");
+
+        // 👉 allow clicking before start
+        optionBtns.forEach(btn => btn.classList.add('active'));
+    }
+}
+	
+     
     function resetGame() {
         if (state.isRolling) return;
         const startBtn = document.querySelector('.btn-start');
@@ -1027,7 +1041,14 @@ if (dataReady && vocabularyList.length > 0) {
         updateCharacterPositions();
         showStartAnimation();
         // Delay loadQuestion so bling doesn't show on dice during animation
-        setTimeout(loadQuestion, 1500); 
+     setTimeout(() => {
+    loadQuestion();
+
+    // 🔥 lock options until dice
+    optionBtns.forEach(btn => btn.classList.remove('active'));
+
+   }, 1500);
+		
     }
 
     function showStartAnimation() {
