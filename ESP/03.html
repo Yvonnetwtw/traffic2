@@ -443,6 +443,8 @@
         }
 
         .btn-action {
+			flex: 1;
+            max-width: 140px;   /* 🔥 reduce */
 			padding: 12px 24px;   /* 🔥 smaller */
             border-radius: var(--radius-pill);
             font-size: 16px;
@@ -511,7 +513,7 @@
             margin-top: -10px;
             z-index: 10;
             background: #0f172a;
-			flex: 0 0 auto;   /* prevent stretching */
+			flex: 0 0 140px;   /* 🔥 reserve space for dice */
         }
 
         .console-top {
