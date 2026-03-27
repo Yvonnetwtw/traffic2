@@ -805,7 +805,7 @@
       });
 
     async function fetchQuestions() {
-    const url = "https://script.google.com/macros/s/AKfycbwKt47CitjEo1CRkuFYxn0S2oWCKeItPtLD29m25dcA07J0Dw20g56Xd9VE20OlekLt/exec?level=1";
+   const url = "https://script.google.com/macros/s/AKfycbwKt47CitjEo1CRkuFYxn0S2oWCKeItPtLD29m25dcA07J0Dw20g56Xd9VE20OlekLt/exec?level=1&t=" + new Date().getTime();
 
     try {
         const res = await fetch(url);
