@@ -443,7 +443,6 @@
         }
 
         .btn-action {
-            flex: 0 0 auto;   /* 🔥 stop squeezing */
 			padding: 12px 24px;   /* 🔥 smaller */
             border-radius: var(--radius-pill);
             font-size: 16px;
@@ -533,14 +532,14 @@
             position: relative;
         }
 
-        .console-score-badge {
-            display: flex; align-items: center; gap: 6px;
-            background: #fff; padding: 4px 14px; border-radius: 20px;
-            font-weight: 900; font-size: 15px; color: var(--text-dark);
-            box-shadow: 0 4px 0 rgba(0,0,0,0.1), inset 0 2px 4px rgba(255,255,255,0.8);
-            border: 2px solid #e2e8f0;
-        }
-
+     <div class="console-score-badge" id="score-badge">
+    <span id="ui-player-icon">🐱</span> 
+    <span id="ui-player-score">0</span> 
+    <span class="score-divider">|</span> 
+    <span id="ui-npc-icon">🐻</span> 
+    <span id="ui-npc-score">0</span>
+      </div>
+		
         .score-divider { color: #94a3b8; margin: 0 2px; }
 
         .console-mid {
@@ -733,6 +732,24 @@
     color: #64748b;
 }
 		
+ .console-score-badge {
+    background: white;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+    margin-top: 6px;   /* spacing from dice */
+}
+
+.score-divider {
+    color: #64748b;
+}
+	
     </style>
 </head>
 <body>
@@ -794,18 +811,12 @@
         <div class="console-mid">Level 1 ⭐ Beginner ⚡⚡</div>
 
         <div class="console-bot">
-			<div class="score-hud">
-    <div class="score-item">
-        <span id="ui-player-icon">🐱</span>
-        <span id="ui-player-score">0</span>
-    </div>
-
-    <div class="score-divider">vs</div>
-
-    <div class="score-item">
-        <span id="ui-npc-icon">🐻</span>
-        <span id="ui-npc-score">0</span>
-    </div>
+        <div class="console-score-badge" id="score-badge">
+    <span id="ui-player-icon">🐱</span> 
+    <span id="ui-player-score">0</span> 
+    <span class="score-divider">|</span> 
+    <span id="ui-npc-icon">🐻</span> 
+    <span id="ui-npc-score">0</span>
 </div>
 			
             <div class="stat-pill">🔋 <span id="ui-progress">1/5</span></div>
