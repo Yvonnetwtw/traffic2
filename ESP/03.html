@@ -687,16 +687,45 @@
 
 .score-bar {
     position: fixed;
-    bottom: 100px;   /* 🔥 move near buttons */
+    bottom: 90px;   /* adjust height */
     left: 0;
     width: 100%;
-    display: flex;
-    justify-content: space-between;
-    padding: 0 30px;
+    pointer-events: none;
     z-index: 999;
 }
 
-.score-left, .score-right {
+.score-bar {
+    position: fixed;
+    bottom: 90px;
+    left: 0;
+    width: 100%;
+    pointer-events: none;
+    z-index: 999;
+}
+
+/* 🔥 LEFT (above Start) */
+.score-left {
+    position: absolute;
+    left: 25%;
+    transform: translateX(-50%);
+
+    background: linear-gradient(180deg, #ffffff 0%, #e2e8f0 100%);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+    border: 2px solid #fff;
+}
+
+/* 🔥 RIGHT (above End) */
+.score-right {
+    position: absolute;
+    left: 75%;
+    transform: translateX(-50%);
+
     background: linear-gradient(180deg, #ffffff 0%, #e2e8f0 100%);
     padding: 8px 16px;
     border-radius: 20px;
