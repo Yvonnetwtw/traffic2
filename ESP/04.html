@@ -917,18 +917,29 @@ async function fetchQuestions() {
         alert("⏳ Data loading... please wait");
         return;
     }
-        state.playerType = type;
-        const availableNpcs = Object.keys(mascotData).filter(k => k !== type);
-        state.npcType = availableNpcs[Math.floor(Math.random() * availableNpcs.length)];
-        document.getElementById('selection-overlay').style.display = 'none';
-        document.getElementById('ui-player-icon').innerText = mascotData[state.playerType].emoji;
-        document.getElementById('ui-npc-icon').innerText = mascotData[state.npcType].emoji;
-        state.gameStarted = false;
-        document.querySelector('.btn-start').classList.add('bling-active');
-        diceBtn.classList.remove('bling-active');
-        diceBtn.disabled = true;
-        initBoard();
-        loadQuestion();
+state.playerType = type;
+const availableNpcs = Object.keys(mascotData).filter(k => k !== type);
+state.npcType = availableNpcs[Math.floor(Math.random() * availableNpcs.length)];
+
+document.getElementById('selection-overlay').style.display = 'none';
+
+document.getElementById('ui-player-icon').innerText = mascotData[state.playerType].emoji;
+document.getElementById('ui-npc-icon').innerText = mascotData[state.npcType].emoji;
+
+state.gameStarted = false;
+
+document.querySelector('.btn-start').classList.add('bling-active');
+
+diceBtn.classList.remove('bling-active');
+diceBtn.disabled = true;
+
+initBoard();
+
+if (dataReady && vocabularyList.length > 0) {
+    loadQuestion();
+} else {
+    console.log("⏳ Data not ready yet");
+}
     }
 
     function initBoard() {
