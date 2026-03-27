@@ -685,32 +685,6 @@
         @keyframes fall { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(110vh) rotate(360deg); opacity: 0; } }
 
 
-.score-bar {
-    position: fixed;
-    bottom: 20px;
-    left: 0;
-    width: 100%;
-    z-index: 999;
-    pointer-events: none;
-}
-
-/* 🔥 attach to START button */
-.score-left {
-    position: absolute;
-    left: 18%;   /* adjust to match Start button */
-    bottom: 10px;
-
-    transform: translateX(-50%);
-}
-
-/* 🔥 attach to END button */
-.score-right {
-    position: absolute;
-    left: 82%;   /* adjust to match End button */
-    bottom: 10px;
-
-    transform: translateX(-50%);
-}
 
 /* 🔥 RIGHT (above End) */
 .score-right {
@@ -728,6 +702,29 @@
     box-shadow: 0 6px 12px rgba(0,0,0,0.3);
     border: 2px solid #fff;
 }
+	.score-hud {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 6px;
+}
+
+.score-item {
+    background: white;
+    padding: 6px 12px;
+    border-radius: 16px;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+}
+
+.score-divider {
+    font-weight: 900;
+    color: #64748b;
+}
 		
     </style>
 </head>
@@ -736,18 +733,6 @@
 <div id="game-container">
 	
 	<div id="game-container">
-
-    <div class="score-bar">
-        <div class="score-left">
-            <span id="ui-player-icon">🐱</span>
-            <span id="ui-player-score">0</span>
-        </div>
-        <div class="score-right">
-            <span id="ui-npc-icon">🐻</span>
-            <span id="ui-npc-score">0</span>
-        </div>
-    </div>
-		
     <div id="selection-overlay">
         <div class="selection-card">
             <h2>Choose Your Mascot!</h2>
@@ -802,6 +787,20 @@
         <div class="console-mid">Level 1 ⭐ Beginner ⚡⚡</div>
 
         <div class="console-bot">
+			<div class="score-hud">
+    <div class="score-item">
+        <span id="ui-player-icon">🐱</span>
+        <span id="ui-player-score">0</span>
+    </div>
+
+    <div class="score-divider">vs</div>
+
+    <div class="score-item">
+        <span id="ui-npc-icon">🐻</span>
+        <span id="ui-npc-score">0</span>
+    </div>
+</div>
+			
             <div class="stat-pill">🔋 <span id="ui-progress">1/5</span></div>
             <div class="stat-pill">🪙 25</div>
         </div>
