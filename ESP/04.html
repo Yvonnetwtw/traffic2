@@ -864,12 +864,7 @@ function setLevel(level) {
     fetchQuestions();
 }
 	
-let currentLevel = 1;
 
-function setLevel(level) {
-    currentLevel = level;
-    fetchQuestions();
-}
 
 async function fetchQuestions() {
     const url = `https://script.google.com/macros/s/AKfycbwKt47CitjEo1CRkuFYxn0S2oWCKeItPtLD29m25dcA07J0Dw20g56Xd9VE20OlekLt/exec?level=${currentLevel}&t=${new Date().getTime()}`;
