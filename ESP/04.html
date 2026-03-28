@@ -1008,19 +1008,25 @@ function loadQuestion() {
 
     progressEl.innerText = `${state.currentWordIndex + 1}/${vocabularyList.length}`;
 
-    if (state.gameStarted) {
-        diceBtn.disabled = false;
-        diceBtn.innerText = "🎲";
-        diceBtn.classList.add('bling-active');
-        showFeedback("✨ Tap the Mega Dice! ✨", "neutral");
-    } else {
-        diceBtn.disabled = true;
-        diceBtn.classList.remove('bling-active');
-        showFeedback("Click ✨ Start ✨ to begin!", "neutral");
+   if (!state.questionActive) {
+    // 🔒 BEFORE dice → DO NOT show question
+    wordEl.innerText = "???";
+    phoneticEl.innerText = "";
+    document.getElementById('ui-definition').innerText = "";
 
-        // 👉 allow clicking before start
-        optionBtns.forEach(btn => btn.classList.add('active'));
-    }
+    optionBtns.forEach(btn => {
+        btn.querySelector('.opt-text').innerText = "";
+        btn.classList.remove('correct', 'wrong', 'active');
+    });
+
+    diceBtn.disabled = false;
+    diceBtn.innerText = "🎲";
+    diceBtn.classList.add('bling-active');
+
+    showFeedback("🎯 Roll the dice to start!", "neutral");
+
+    return;   // 🔥 STOP here (very important)
+}
 }
 	
      
