@@ -975,15 +975,34 @@ initBoard();
         }
     }
 
-
-	
-function loadQuestion() {
+    function loadQuestion() {
 
     if (vocabularyList.length === 0) {
         console.warn("⏳ Data not loaded yet");
         return;
     }
 
+    // ✅ MOVE HERE (TOP)
+    if (!state.questionActive) {
+        wordEl.innerText = "📢 Ready";
+        phoneticEl.innerText = "";
+        document.getElementById('ui-definition').innerText = "";
+
+        optionBtns.forEach(btn => {
+            btn.querySelector('.opt-text').innerText = "";
+            btn.classList.remove('correct', 'wrong', 'active');
+        });
+
+        diceBtn.disabled = false;
+        diceBtn.innerText = "🎲";
+        diceBtn.classList.add('bling-active');
+
+        showFeedback("🎯 Roll the dice to start!", "neutral");
+
+        return;
+    }
+
+    // 👇 ONLY runs AFTER dice
     if (state.currentWordIndex >= vocabularyList.length) {
         state.currentWordIndex = 0;
     }
@@ -1007,27 +1026,7 @@ function loadQuestion() {
     timerEl.style.display = 'none';
 
     progressEl.innerText = `${state.currentWordIndex + 1}/${vocabularyList.length}`;
-
-   if (!state.questionActive) {
-    // 🔒 BEFORE dice → DO NOT show question
-    wordEl.innerText = "???";
-    phoneticEl.innerText = "";
-    document.getElementById('ui-definition').innerText = "";
-
-    optionBtns.forEach(btn => {
-        btn.querySelector('.opt-text').innerText = "";
-        btn.classList.remove('correct', 'wrong', 'active');
-    });
-
-    diceBtn.disabled = false;
-    diceBtn.innerText = "🎲";
-    diceBtn.classList.add('bling-active');
-
-    showFeedback("🎯 Roll the dice to start!", "neutral");
-
-    return;   // 🔥 STOP here (very important)
-}
-}
+  }
 	
      
     function resetGame() {
