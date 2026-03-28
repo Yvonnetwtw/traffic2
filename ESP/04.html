@@ -978,9 +978,10 @@ initBoard();
         console.warn("⏳ Data not loaded yet");
         return;
     }
-    // ✅ MOVE HERE (TOP)
+
+    // ✅ TOP BLOCK — not active, show ready state
     if (!state.questionActive) {
-		wordEl.innerText = "📢Ready! Go";
+        wordEl.innerText = "📢Ready! Go";
         phoneticEl.innerText = "";
         document.getElementById('ui-definition').innerText = "";
 
@@ -992,13 +993,12 @@ initBoard();
         diceBtn.disabled = false;
         diceBtn.innerText = "🎲";
         diceBtn.classList.add('bling-active');
-
         showFeedback("🎯 Roll the dice to start!", "neutral");
 
-        return;
+        return;   // ← stops here if not active
     }
 
-    // 👇 ONLY runs AFTER dice
+    // 👇 ONLY runs AFTER dice (questionActive = true)
     if (state.currentWordIndex >= vocabularyList.length) {
         state.currentWordIndex = 0;
     }
@@ -1007,19 +1007,22 @@ initBoard();
     wordEl.innerText = q.word;
     phoneticEl.innerText = q.phonetic;
     document.getElementById('ui-definition').innerText = q.definition;
-	playWord();   
-    const classes = ['opt-a', 'opt-b', 'opt-c', 'opt-d'];
+    playWord();
 
+    const classes = ['opt-a', 'opt-b', 'opt-c', 'opt-d'];
     optionBtns.forEach((btn, idx) => {
         btn.querySelector('.opt-text').innerText = q.options[idx] || "";
         btn.classList.remove('correct', 'wrong', 'active');
         btn.classList.add('option-btn', classes[idx]);
     });
- 
 
     progressEl.innerText = `${state.currentWordIndex + 1}/${vocabularyList.length}`;
-  }
-	
+
+    // ✅ ADD HERE — re-enable options & lock dice
+    optionBtns.forEach(btn => btn.classList.add('active'));
+    diceBtn.disabled = true;
+
+	}  // ← closing brace of loadQuestion
      
     function resetGame() {
         if (state.isRolling) return;
@@ -1214,7 +1217,8 @@ initBoard();
                 setTimeout(() => { 
 					    state.currentWordIndex++; 
 					    state.questionActive = true;   // ✅ ADD THIS
-					    loadQuestion(); 
+					    loadQuestion();      
+						startTimer();   // ✅ FIX: restarts 5s timer for next question							
 					}, 1000);
             }
         }, 2000);
