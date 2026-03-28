@@ -984,6 +984,10 @@ function loadQuestion() {
         wordEl.innerText = "🎲 Roll to Start!";
         phoneticEl.innerText = "";
         document.getElementById('ui-definition').innerText = "";
+		 diceBtn.disabled = false;
+  		 diceBtn.classList.add('bling-active');
+ 		 showFeedback("🎲 Tap the Mega Dice!", "neutral");
+  	     return;
         optionBtns.forEach(btn => {
             btn.querySelector('.opt-text').innerText = "";
             btn.classList.remove('correct', 'wrong', 'active');
@@ -1004,11 +1008,7 @@ function loadQuestion() {
     document.getElementById('ui-definition').innerText = "";
 
     const classes = ['opt-a', 'opt-b', 'opt-c', 'opt-d'];
-    optionBtns.forEach((btn, idx) => {
-        btn.querySelector('.opt-text').innerText = q.options[idx] || "";
-        btn.classList.remove('correct', 'wrong');
-        btn.classList.add('option-btn', classes[idx], 'active');
-    });
+   
 
     progressEl.innerText = `${state.currentWordIndex + 1}/${vocabularyList.length}`;
     diceBtn.disabled = true;
@@ -1163,8 +1163,7 @@ function handleTimeOut() {
     state.questionActive = false;
 
     const q = vocabularyList[state.currentWordIndex];
-    document.getElementById('ui-definition').innerText = q.definition;
-
+	document.getElementById('ui-definition').innerHTML = `📖 <em>${q.definition}</em>📖`; 
     optionBtns.forEach(btn => btn.classList.remove('active'));
     optionBtns[q.answer].classList.add('correct');
     showFeedback(`⏰ Time's up!`, "error");
@@ -1180,7 +1179,7 @@ function handleTimeOut() {
     timerEl.style.display = 'none';
 
     const q = vocabularyList[state.currentWordIndex];
-    document.getElementById('ui-definition').innerText = q.definition;
+   document.getElementById('ui-definition').innerHTML = `📖 <em>${q.definition}</em>📖`;
 
     const isCorrect = (selectedIndex === q.answer);
     optionBtns.forEach(btn => btn.classList.remove('active'));
