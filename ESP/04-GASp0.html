@@ -981,22 +981,14 @@ function loadQuestion() {
     }
 
     if (!state.questionActive) {
-        wordEl.innerText = "🎲 Roll to Start!";
-        phoneticEl.innerText = "";
-        document.getElementById('ui-definition').innerText = "";
-		 diceBtn.disabled = false;
-  		 diceBtn.classList.add('bling-active');
- 		 showFeedback("🎲 Tap the Mega Dice!", "neutral");
-  	     return;
-        optionBtns.forEach(btn => {
-            btn.querySelector('.opt-text').innerText = "";
-            btn.classList.remove('correct', 'wrong', 'active');
-        });
-        diceBtn.disabled = false;
-        diceBtn.classList.add('bling-active');
-        showFeedback("🎲 Tap the Mega Dice!", "neutral");
-        return;
-    }
+    wordEl.innerText = "🎲 Roll to Start!";
+    phoneticEl.innerText = "";
+    document.getElementById('ui-definition').innerText = "";
+    diceBtn.disabled = false;
+    diceBtn.classList.add('bling-active');
+    showFeedback("🎲 Tap the Mega Dice!", "neutral");
+    return;
+}
 
     if (state.currentWordIndex >= vocabularyList.length) {
         state.currentWordIndex = 0;
