@@ -844,27 +844,20 @@
     let dataReady = false;
 	
 	document.addEventListener("DOMContentLoaded", function () {
-
-
-    //const boardEl = document.getElementById('board');
-   // const wordEl = document.getElementById('ui-word');
-   // const phoneticEl = document.getElementById('ui-phonetic');
-   // const optionBtns = document.querySelectorAll('.option-btn');
-
+    
     renderMascots();
     fetchQuestions();
-
       });
 
 let currentLevel = 1;
 
-function setLevel(level) {
-    currentLevel = level;
-
-    document.getElementById("level-label").innerText = "Level " + level;
-
-    fetchQuestions();
-}
+	function setLevel(level) {
+	    currentLevel = level;
+	
+	    document.getElementById("level-label").innerText = "Level " + level;
+	
+	    fetchQuestions();
+	}
 	
  let state = {
         playerPos: 0, npcPos: 0, playerScore: 0, npcScore: 0, currentDice: 0,
