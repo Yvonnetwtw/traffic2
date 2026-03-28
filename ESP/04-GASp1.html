@@ -1026,13 +1026,21 @@ function loadQuestion() {
         showStartAnimation();
         // Delay loadQuestion so bling doesn't show on dice during animation
  	    setTimeout(() => {
-		   if (dataReady && vocabularyList.length > 0) loadQuestion();
-		    // 🔥 lock options until dice
-		    optionBtns.forEach(btn => btn.classList.remove('active'));
-		
-		   }, 1500);
-				
-		    }
+    if (state.playerPos >= boardPath.length - 1 || state.npcPos >= boardPath.length - 1) {
+        endGame();
+    } else {
+        showFeedback("👉 Your turn! Roll the dice.", "neutral");
+        setTimeout(() => {
+            state.currentWordIndex++;
+            state.questionActive = false;        // ✅ ready for dice
+            clearInterval(timerInterval);
+            timerEl.style.display = 'none';
+            loadQuestion();                      // shows "🎲 Roll to Start!"
+            diceBtn.disabled = false;            // ✅ re-enable dice
+            diceBtn.classList.add('bling-active'); // ✅ prompt player
+        }, 1000);
+    }
+}, 2000);
 
     function showStartAnimation() {
         const animContainer = document.getElementById('start-animation');
