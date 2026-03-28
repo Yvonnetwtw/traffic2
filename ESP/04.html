@@ -984,7 +984,7 @@ initBoard();
 
     // ✅ MOVE HERE (TOP)
     if (!state.questionActive) {
-        wordEl.innerText = "📢 Ready";
+        wordEl.innerText = "📢 Ready!";
         phoneticEl.innerText = "";
         document.getElementById('ui-definition').innerText = "";
 
@@ -1148,13 +1148,23 @@ initBoard();
         }, 60);
     }
 
-    function finishRoll() {
-        state.isRolling = false; diceBtn.classList.remove('dice-animating');
-        state.currentDice = Math.floor(Math.random() * 3) + 1; diceBtn.innerText = state.currentDice; diceBtn.disabled = true;
-        state.questionActive = true; optionBtns.forEach(btn => btn.classList.add('active'));
-        showFeedback(`🎲 ${state.currentDice} → Get it right to move!`, "neutral");
-        playSound('correct'); playWord(); startTimer();
-    }
+  function finishRoll() {
+    state.isRolling = false;
+    diceBtn.classList.remove('dice-animating');
+
+    state.currentDice = Math.floor(Math.random() * 3) + 1;
+    diceBtn.innerText = state.currentDice;
+    diceBtn.disabled = true;
+
+    state.questionActive = true;
+    optionBtns.forEach(btn => btn.classList.add('active'));
+
+    showFeedback(`🎲 ${state.currentDice} → Get it right to move!`, "neutral");
+    playSound('correct');
+    playWord();
+    startTimer();
+    loadQuestion();   // ✅ important       
+	}
 
     function startTimer() {
         timeLeft = 5; timerEl.style.display = 'block'; timerEl.innerText = `⏳ ${timeLeft}s`;
