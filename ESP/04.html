@@ -740,7 +740,6 @@
         </div>
     </div>
 </div>
-		
 
     <div class="middle-area">
         <div class="timer-badge" id="ui-timer" style="display: none;">⏳ 5s</div>
@@ -975,15 +974,13 @@ initBoard();
     }
 
     function loadQuestion() {
-
     if (vocabularyList.length === 0) {
         console.warn("⏳ Data not loaded yet");
         return;
     }
-
     // ✅ MOVE HERE (TOP)
     if (!state.questionActive) {
-	wordEl.innerText = "📢Ready! Go";
+		wordEl.innerText = "📢Ready! Go";
         phoneticEl.innerText = "";
         document.getElementById('ui-definition').innerText = "";
 
@@ -1007,11 +1004,10 @@ initBoard();
     }
 
     const q = vocabularyList[state.currentWordIndex];
-
     wordEl.innerText = q.word;
     phoneticEl.innerText = q.phonetic;
     document.getElementById('ui-definition').innerText = q.definition;
-
+	playWord();   
     const classes = ['opt-a', 'opt-b', 'opt-c', 'opt-d'];
 
     optionBtns.forEach((btn, idx) => {
@@ -1020,7 +1016,6 @@ initBoard();
         btn.classList.add('option-btn', classes[idx]);
     });
 
-    state.questionActive = false;
     clearInterval(timerInterval);
     timerEl.style.display = 'none';
 
@@ -1150,7 +1145,7 @@ initBoard();
   function finishRoll() {
     state.isRolling = false;
     diceBtn.classList.remove('dice-animating');
-
+	  
     state.currentDice = Math.floor(Math.random() * 3) + 1;
     diceBtn.innerText = state.currentDice;
     diceBtn.disabled = true;
@@ -1160,7 +1155,6 @@ initBoard();
 
     showFeedback(`🎲 ${state.currentDice} → Get it right to move!`, "neutral");
     playSound('correct');
-    playWord();
     startTimer();
     loadQuestion();   // ✅ important       
 	}
@@ -1219,7 +1213,11 @@ initBoard();
             if (state.playerPos >= boardPath.length - 1 || state.npcPos >= boardPath.length - 1) endGame();
             else {
                 showFeedback("👉 Next question...", "neutral");
-                setTimeout(() => { state.currentWordIndex++; loadQuestion(); }, 1000);
+                setTimeout(() => { 
+					    state.currentWordIndex++; 
+					    state.questionActive = true;   // ✅ ADD THIS
+					    loadQuestion(); 
+					}, 1000);
             }
         }, 2000);
     }
