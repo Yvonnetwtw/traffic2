@@ -887,12 +887,21 @@
 
 let currentLevel = 1;
 
-	function setLevel(level) {
-	    currentLevel = level;
-	
-	    document.getElementById("level-label").innerText = "Level " + level;
-	
-	    fetchQuestions();
+function setLevel(level) {
+    currentLevel = level;
+
+    // update green badge text
+    const labels = { 1:'Level 1 ⭐ Beginner', 2:'Level 2 🔥 Mid', 3:'Level 3 💎 Pro', 4:'Level 4 🤖 AI' };
+    document.getElementById('level-label').innerText = labels[level];
+    document.getElementById('console-mid-label').innerText = labels[level];
+
+    // highlight selected button
+    [1,2,3,4].forEach(n => {
+        const btn = document.getElementById('lvl-btn-' + n);
+        if (btn) btn.classList.toggle('selected', n === level);
+    });
+
+    fetchQuestions();
 	}
 	
  let state = {
