@@ -1155,7 +1155,7 @@ function handleTimeOut() {
     state.questionActive = false;
 
     const q = vocabularyList[state.currentWordIndex];
-	document.getElementById('ui-definition').innerHTML = `📖 <em>${q.definition}</em>📖`; 
+	document.getElementById('ui-definition').innerHTML = `😊<em>${q.definition}</em>`; 
     optionBtns.forEach(btn => btn.classList.remove('active'));
     optionBtns[q.answer].classList.add('correct');
     showFeedback(`⏰ Time's up!`, "error");
@@ -1171,7 +1171,7 @@ function handleTimeOut() {
     timerEl.style.display = 'none';
 
     const q = vocabularyList[state.currentWordIndex];
-   document.getElementById('ui-definition').innerHTML = `📖 <em>${q.definition}</em>📖`;
+   document.getElementById('ui-definition').innerHTML = `📢 <em>${q.definition}</em>`;
 
     const isCorrect = (selectedIndex === q.answer);
     optionBtns.forEach(btn => btn.classList.remove('active'));
