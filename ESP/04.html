@@ -1041,15 +1041,14 @@ function loadQuestion() {
         updateCharacterPositions();
         showStartAnimation();
         // Delay loadQuestion so bling doesn't show on dice during animation
-     setTimeout(() => {
-    loadQuestion();
-
-    // 🔥 lock options until dice
-    optionBtns.forEach(btn => btn.classList.remove('active'));
-
-   }, 1500);
+ 	    setTimeout(() => {
+		   if (dataReady && vocabularyList.length > 0) loadQuestion();
+		    // 🔥 lock options until dice
+		    optionBtns.forEach(btn => btn.classList.remove('active'));
 		
-    }
+		   }, 1500);
+				
+		    }
 
     function showStartAnimation() {
         const animContainer = document.getElementById('start-animation');
