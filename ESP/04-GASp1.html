@@ -459,9 +459,9 @@
 		    text-shadow: 0 2px 2px rgba(0,0,0,0.3);
 		}
 		
-		.btn-action:active { 
-		    transform: translateY(6px); 
-		    box-shadow: 0 0 0 transparent; 
+		.btn-end:active {
+		   transform: translateY(6px);
+		   box-shadow: 0 2px 0 #7f0000, 0 4px 8px rgba(183,28,28,0.4), inset 0 4px 8px rgba(0,0,0,0.3);
 		}
 		
 		.btn-start { 
@@ -474,15 +474,28 @@
 		    overflow: hidden;
 		}
 		
-		.btn-end { 
-		    background: linear-gradient(180deg, #ef5350 0%, #c62828 100%);
-		    border: 2px solid #ffcdd2;
+			.btn-end { 
+		    background: radial-gradient(circle at 40% 30%, #ff6b6b 0%, #e53935 40%, #b71c1c 100%);
+		    border: 3px solid #ff8a80;
+		    border-radius: 50%;              /* ✅ round shape */
+		    width: 80px;
+		    height: 80px;
+		    flex: 0 0 80px;
 		    color: white;
-		    text-shadow: 0 2px 2px rgba(0,0,0,0.3);
-		    box-shadow: 0 6px 0 #b71c1c, var(--highlight-inner);
+		    font-size: 13px;
+		    font-weight: 900;
+		    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+		    box-shadow: 
+		        0 8px 0 #7f0000,             /* deep bottom shadow */
+		        0 12px 20px rgba(183,28,28,0.6),  /* red outer glow */
+		        inset 0 4px 8px rgba(255,255,255,0.4),  /* inner highlight */
+		        inset 0 -4px 8px rgba(0,0,0,0.3);
 		    position: relative;
 		    overflow: hidden;
+		    cursor: pointer;
+		    transition: all 0.1s;
 		}
+
 		
         /* --- BLING CLASSES --- */
         .btn-start.bling-active {
@@ -820,19 +833,19 @@
         
 		<div class="console-bot">
             <div class="stat-pill">🔋 <span id="ui-progress">1/5</span></div>
-            <div class="stat-pill">🪙 25</div>
+            <div class="stat-pill">🛡️ 25</div>
         </div>
 
         <div class="console-score-badge" id="score-badge">
-            <span id="ui-player-icon">👩🏻👨🏻</span>
+            <span id="ui-player-icon">👨🏻</span>
             <span id="ui-player-score">0</span>
             <span class="score-divider"> VS </span>
-            <span id="ui-npc-icon">💻🛡️</span>
+            <span id="ui-npc-icon">👩🏻</span>
             <span id="ui-npc-score">0</span>
         </div>
 		
     </div>
-	    <button class="btn-action btn-end" onclick="endGame(true)"> 💎End🔚 </button>
+	    <button class="btn-action btn-end" onclick="endGame(true)"> End </button>
 	
 	</div>
 	
