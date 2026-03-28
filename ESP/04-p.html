@@ -974,13 +974,23 @@ if (dataReady && vocabularyList.length > 0) {
             setTimeout(() => sparkle.remove(), 1000);
         }
     }
-
-
-	
 function loadQuestion() {
-
     if (vocabularyList.length === 0) {
         console.warn("⏳ Data not loaded yet");
+        return;
+    }
+
+    if (!state.questionActive) {
+        wordEl.innerText = "🎲 Roll to Start!";
+        phoneticEl.innerText = "";
+        document.getElementById('ui-definition').innerText = "";
+        optionBtns.forEach(btn => {
+            btn.querySelector('.opt-text').innerText = "";
+            btn.classList.remove('correct', 'wrong', 'active');
+        });
+        diceBtn.disabled = false;
+        diceBtn.classList.add('bling-active');
+        showFeedback("🎲 Tap the Mega Dice!", "neutral");
         return;
     }
 
@@ -989,39 +999,21 @@ function loadQuestion() {
     }
 
     const q = vocabularyList[state.currentWordIndex];
-
     wordEl.innerText = q.word;
     phoneticEl.innerText = q.phonetic;
-    document.getElementById('ui-definition').innerText = q.definition;
+    document.getElementById('ui-definition').innerText = "";
 
     const classes = ['opt-a', 'opt-b', 'opt-c', 'opt-d'];
-
     optionBtns.forEach((btn, idx) => {
         btn.querySelector('.opt-text').innerText = q.options[idx] || "";
-        btn.classList.remove('correct', 'wrong', 'active');
-        btn.classList.add('option-btn', classes[idx]);
+        btn.classList.remove('correct', 'wrong');
+        btn.classList.add('option-btn', classes[idx], 'active');
     });
 
-    state.questionActive = false;
-    clearInterval(timerInterval);
-    timerEl.style.display = 'none';
-
     progressEl.innerText = `${state.currentWordIndex + 1}/${vocabularyList.length}`;
-
-    if (state.gameStarted) {
-        diceBtn.disabled = false;
-        diceBtn.innerText = "🎲";
-        diceBtn.classList.add('bling-active');
-        showFeedback("✨ Tap the Mega Dice! ✨", "neutral");
-    } else {
-        diceBtn.disabled = true;
-        diceBtn.classList.remove('bling-active');
-        showFeedback("Click ✨ Start ✨ to begin!", "neutral");
-
-        // 👉 allow clicking before start
-        optionBtns.forEach(btn => btn.classList.add('active'));
-    }
+    diceBtn.disabled = true;
 }
+
 	
      
     function resetGame() {
@@ -1143,14 +1135,20 @@ function loadQuestion() {
         }, 60);
     }
 
-    function finishRoll() {
-        state.isRolling = false; diceBtn.classList.remove('dice-animating');
-        state.currentDice = Math.floor(Math.random() * 3) + 1; diceBtn.innerText = state.currentDice; diceBtn.disabled = true;
-        state.questionActive = true; optionBtns.forEach(btn => btn.classList.add('active'));
-        showFeedback(`🎲 ${state.currentDice} → Get it right to move!`, "neutral");
-        playSound('correct'); playWord(); startTimer();
-    }
+   function finishRoll() {
+    state.isRolling = false;
+    diceBtn.classList.remove('dice-animating');
 
+    state.currentDice = Math.floor(Math.random() * 3) + 1;
+    diceBtn.innerText = state.currentDice;
+    diceBtn.disabled = true;
+
+    state.questionActive = true;
+    loadQuestion();
+    playWord();
+    showFeedback(`🎲 ${state.currentDice} → Get it right to move!`, "neutral");
+    startTimer();
+}
     function startTimer() {
         timeLeft = 5; timerEl.style.display = 'block'; timerEl.innerText = `⏳ ${timeLeft}s`;
         clearInterval(timerInterval);
@@ -1160,35 +1158,55 @@ function loadQuestion() {
         }, 1000);
     }
 
-    function handleTimeOut() {
-        if (!state.questionActive) return; state.questionActive = false;
-        const q = vocabularyList[state.currentWordIndex];
-        optionBtns.forEach(btn => btn.classList.remove('active'));
-        optionBtns[q.answer].classList.add('correct'); 
-        showFeedback("⏰ Time's up!", "error"); playSound('wrong');
-        setTimeout(simulateNPCTurn, 1500);
+function handleTimeOut() {
+    if (!state.questionActive) return;
+    state.questionActive = false;
+
+    const q = vocabularyList[state.currentWordIndex];
+    document.getElementById('ui-definition').innerText = q.definition;
+
+    optionBtns.forEach(btn => btn.classList.remove('active'));
+    optionBtns[q.answer].classList.add('correct');
+    showFeedback(`⏰ Time's up!`, "error");
+    playSound('wrong');
+    setTimeout(simulateNPCTurn, 1500);
+}
+
+   
+	function checkAnswer(selectedIndex) {
+    if (!state.questionActive) return;
+    state.questionActive = false;
+    clearInterval(timerInterval);
+    timerEl.style.display = 'none';
+
+    const q = vocabularyList[state.currentWordIndex];
+    document.getElementById('ui-definition').innerText = q.definition;
+
+    const isCorrect = (selectedIndex === q.answer);
+    optionBtns.forEach(btn => btn.classList.remove('active'));
+
+    if (isCorrect) {
+        optionBtns[selectedIndex].classList.add('correct');
+        const points = state.currentDice * 10;
+        state.playerScore += points;
+        playerScoreEl.innerText = state.playerScore;
+        showFeedback(`✅ Correct! +${points} pts`, "success");
+        playSound('correct');
+        setTimeout(() => {
+            let newPos = state.playerPos + state.currentDice;
+            if (newPos >= boardPath.length) newPos = boardPath.length - 1;
+            state.playerPos = newPos;
+            updateCharacterPositions();
+        }, 500);
+    } else {
+        optionBtns[selectedIndex].classList.add('wrong');
+        optionBtns[q.answer].classList.add('correct');
+        showFeedback(`❌ Oops! Try again.`, "error");
+        playSound('wrong');
     }
 
-    function checkAnswer(selectedIndex) {
-        if (!state.questionActive) return; state.questionActive = false; clearInterval(timerInterval);
-        const q = vocabularyList[state.currentWordIndex];
-        const isCorrect = (selectedIndex === q.answer);
-        optionBtns.forEach(btn => btn.classList.remove('active'));
-        if (isCorrect) {
-            optionBtns[selectedIndex].classList.add('correct');
-            const points = state.currentDice * 10; state.playerScore += points; playerScoreEl.innerText = state.playerScore;
-            showFeedback(`✔ Correct! +${points} points`, "success"); playSound('correct');
-            setTimeout(() => {
-                let newPos = state.playerPos + state.currentDice;
-                if (newPos >= boardPath.length) newPos = boardPath.length - 1;
-                state.playerPos = newPos; updateCharacterPositions();
-            }, 500);
-        } else {
-            optionBtns[selectedIndex].classList.add('wrong'); optionBtns[q.answer].classList.add('correct'); 
-            showFeedback("❌ Oops! Try again.", "error"); playSound('wrong');
-        }
-        setTimeout(simulateNPCTurn, 1500);
-    }
+    setTimeout(simulateNPCTurn, 1500);
+}
 
     function simulateNPCTurn() {
         const npcDice = Math.floor(Math.random() * 3) + 1; const npcGotItRight = Math.random() > 0.3; 
