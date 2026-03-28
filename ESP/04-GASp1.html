@@ -238,11 +238,11 @@
         .middle-area {
             flex: 1;
             background: var(--grad-glass);
-            padding: var(--space-2);
+            padding: var(--space-1) var(--space-2);   /* was var(--space-2) */
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            gap: var(--space-2);
+            gap:6px;          /* was var(--space-2) */
             box-shadow: 0 -10px 20px rgba(0,0,0,0.1), inset 0 6px 15px rgba(255,255,255,0.9);
             position: relative;
             z-index: 20;
@@ -751,7 +751,9 @@
                 <button class="speaker-btn" onclick="playWord()">🔊</button>
             </div>
             <div class="phonetic" id="ui-phonetic">/ˈræstəˌraɪz/</div>
-         <div id="ui-definition" style="font-size:12px; color:#64748b; margin-top: 4px; font-weight: 800;">
+         <div id="ui-definition" style="font-size: 13px;    color: #1e3a8a;    font-weight: 700;    font-style: italic;    margin-top: 4px;    min-height: 18px;
+   		 padding: 4px 12px;    background: rgba(99, 179, 237, 0.15);    border-left: 3px solid #3b82f6;    border-radius: 8px;
+   		 transition: opacity 0.4s;">
            Tap 🔊 and repeat
           </div>
 
@@ -980,19 +982,15 @@ function loadQuestion() {
         return;
     }
 
-    if (!state.questionActive) {
-        wordEl.innerText = "🎲 Roll to Start!";
-        phoneticEl.innerText = "";
-        document.getElementById('ui-definition').innerText = "";
-        optionBtns.forEach(btn => {
-            btn.querySelector('.opt-text').innerText = "";
-            btn.classList.remove('correct', 'wrong', 'active');
-        });
-        diceBtn.disabled = false;
-        diceBtn.classList.add('bling-active');
-        showFeedback("🎲 Tap the Mega Dice!", "neutral");
-        return;
-    }
+   if (!state.questionActive) {
+    wordEl.innerText = "🎲 Roll to Start!";
+    phoneticEl.innerText = "";
+    document.getElementById('ui-definition').innerText = "";
+    diceBtn.disabled = false;
+    diceBtn.classList.add('bling-active');
+    showFeedback("🎲 Tap the Mega Dice!", "neutral");
+    return;
+} 
 
     if (state.currentWordIndex >= vocabularyList.length) {
         state.currentWordIndex = 0;
@@ -1163,8 +1161,8 @@ function handleTimeOut() {
     state.questionActive = false;
 
     const q = vocabularyList[state.currentWordIndex];
-    document.getElementById('ui-definition').innerText = q.definition;
-
+	document.getElementById('ui-definition').innerHTML = `📖 <em>${q.definition}</em>`;
+	
     optionBtns.forEach(btn => btn.classList.remove('active'));
     optionBtns[q.answer].classList.add('correct');
     showFeedback(`⏰ Time's up!`, "error");
@@ -1180,8 +1178,8 @@ function handleTimeOut() {
     timerEl.style.display = 'none';
 
     const q = vocabularyList[state.currentWordIndex];
-    document.getElementById('ui-definition').innerText = q.definition;
-
+	document.getElementById('ui-definition').innerHTML = `📖 <em>${q.definition}</em>`;
+		
     const isCorrect = (selectedIndex === q.answer);
     optionBtns.forEach(btn => btn.classList.remove('active'));
 
