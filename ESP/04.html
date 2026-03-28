@@ -1015,9 +1015,7 @@ initBoard();
         btn.classList.remove('correct', 'wrong', 'active');
         btn.classList.add('option-btn', classes[idx]);
     });
-
-    clearInterval(timerInterval);
-    timerEl.style.display = 'none';
+ 
 
     progressEl.innerText = `${state.currentWordIndex + 1}/${vocabularyList.length}`;
   }
