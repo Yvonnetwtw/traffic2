@@ -929,12 +929,12 @@ diceBtn.disabled = true;
 
 initBoard();
 
-if (dataReady && vocabularyList.length > 0) {
-    loadQuestion();
-} else {
-    console.log("⏳ Data not ready yet");
-}
-    }
+	if (dataReady && vocabularyList.length > 0) {
+	    showFeedback("🎯 Roll the dice to start!", "neutral");
+	} else {
+	    console.log("⏳ Data not ready yet");
+	}
+	    }
 
     function initBoard() {
         boardEl.querySelectorAll('.tile, .character').forEach(e => e.remove());
