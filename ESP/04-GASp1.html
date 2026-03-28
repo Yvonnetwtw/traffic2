@@ -1014,34 +1014,28 @@ function loadQuestion() {
 
 	
      
-    function resetGame() {
-        if (state.isRolling) return;
-        const startBtn = document.querySelector('.btn-start');
-        createSparkles(startBtn);
-        startBtn.classList.remove('bling-active');
-        state.gameStarted = true; state.playerPos = 0; state.npcPos = 0; state.playerScore = 0; state.npcScore = 0; state.currentWordIndex = 0;
-        playerScoreEl.innerText = '0'; npcScoreEl.innerText = '0';
-        clearInterval(timerInterval); timerEl.style.display = 'none';
-        updateCharacterPositions();
-        showStartAnimation();
-        // Delay loadQuestion so bling doesn't show on dice during animation
- 	    setTimeout(() => {
-    if (state.playerPos >= boardPath.length - 1 || state.npcPos >= boardPath.length - 1) {
-        endGame();
-    } else {
-        showFeedback("👉 Your turn! Roll the dice.", "neutral");
-        setTimeout(() => {
-            state.currentWordIndex++;
-            state.questionActive = false;        // ✅ ready for dice
-            clearInterval(timerInterval);
-            timerEl.style.display = 'none';
-            loadQuestion();                      // shows "🎲 Roll to Start!"
-            diceBtn.disabled = false;            // ✅ re-enable dice
-            diceBtn.classList.add('bling-active'); // ✅ prompt player
-        }, 1000);
-    }
-}, 2000);
-
+   function resetGame() {
+    if (state.isRolling) return;
+    const startBtn = document.querySelector('.btn-start');
+    createSparkles(startBtn);
+    startBtn.classList.remove('bling-active');
+    state.gameStarted = true;
+    state.playerPos = 0; state.npcPos = 0;
+    state.playerScore = 0; state.npcScore = 0;
+    state.currentWordIndex = 0;
+    playerScoreEl.innerText = '0'; npcScoreEl.innerText = '0';
+    clearInterval(timerInterval);
+    timerEl.style.display = 'none';
+    updateCharacterPositions();
+    showStartAnimation();
+    setTimeout(() => {
+        if (dataReady && vocabularyList.length > 0) {
+            state.questionActive = false;
+            loadQuestion();
+        }
+        optionBtns.forEach(btn => btn.classList.remove('active'));
+    }, 1500);
+}                                    // ✅ resetGame closes HERE
     function showStartAnimation() {
         const animContainer = document.getElementById('start-animation');
         const textEl = document.getElementById('start-text');
