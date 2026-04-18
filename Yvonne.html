@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高端數位名片 · 專業個人檔案</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        beige: '#F2ECE6',
+                        gold: '#B68956',
+                        coffee: '#2E2A27',
+                    },
+                    borderRadius: {
+                        '3xl': '24px',
+                        '4xl': '32px',
+                    },
+                    transitionTimingFunction: {
+                        'premium': 'cubic-bezier(0.4, 0, 0.2, 1)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* 頁首弧形背景 - 匹配截圖中的深色弧形 */
+        .header-shape {
+            clip-path: ellipse(110% 100% at 50% 0%);
+            background-color: #2E2A27;
+        }
+
+        body::-webkit-scrollbar { display: none; }
+        body {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+            background-color: #F2ECE6;
+            color: #2E2A27;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            overscroll-behavior-y: contain;
+        }
+
+        .glass-overlay {
+            backdrop-filter: blur(8px);
+            background-color: rgba(46, 42, 39, 0.6);
+        }
+
+        .transition-premium { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        /* 頭像外框 - 匹配截圖中的金色圓環 */
+        .avatar-ring {
+            border: 1px solid rgba(182, 137, 86, 0.3);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .markdown-content b { font-weight: 700; color: #B68956; }
+        
+        .loading-shimmer {
+            background: linear-gradient(90deg, #f0f0f0 25%, #f8f8f8 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    </style>
+</head>
+<body class="flex justify-center min-h-[100dvh]">
+
+    <!-- 主容器 -->
+    <main id="appContainer" class="w-full max-w-md bg-white min-h-[100dvh] relative shadow-2xl overflow-x-hidden flex flex-col opacity-0 transition-opacity duration-700">
+        
+        <!-- 頂部裝飾區 -->
+        <div class="relative h-56 w-full overflow-hidden">
+            <div class="header-shape w-full h-full absolute top-0 left-0"></div>
+            <!-- 分享按鈕 -->
+            <button onclick="handleShare()" class="absolute top-6 right-6 p-2 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full transition-premium">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
+                </svg>
+            </button>
+        </div>
+
+        <!-- 個人資訊區域 -->
+        <div class="px-8 -mt-20 relative z-10">
+            <div class="flex flex-col items-center">
+                <!-- 圓形頭像 -->
+                <div class="relative group cursor-pointer" onclick="toggleZoomImage()">
+                    <div id="avatarContainer" class="w-36 h-36 rounded-full border-4 border-white shadow-xl overflow-hidden transition-premium active:scale-95 bg-slate-50 flex items-center justify-center relative avatar-ring">
+                        <svg id="mainAvatarSvg" class="w-full h-full bg-slate-100 text-slate-300" viewBox="0 0 100 100">
+                            <rect width="100" height="100" fill="currentColor"/>
+                            <circle cx="50" cy="40" r="20" fill="#CBD5E1"/>
+                            <path d="M20 90C20 70 30 60 50 60S80 70 80 90" fill="#CBD5E1"/>
+                        </svg>
+                    </div>
+                </div>
+                
+                <!-- 姓名與詳細資訊 -->
+                <div class="text-center mt-6">
+                    <h1 id="userName" class="text-2xl font-bold tracking-tight text-coffee leading-tight"></h1>
+                    <p id="userTitle" class="text-slate-500 font-medium mt-2 text-sm tracking-wide"></p>
+                    <p id="userTagline" class="text-slate-400 italic mt-3 text-xs tracking-wider"></p>
+                </div>
+
+                <!-- 膠囊型按鈕 -->
+                <button onclick="toggleModal('bioModal', true)" class="mt-8 px-10 py-2 border border-slate-200 text-slate-500 text-sm font-medium rounded-full hover:bg-gold hover:text-white hover:border-gold transition-premium flex items-center gap-2">
+                    關於我 About Me
+                    <svg class="w-3.5 h-3.5 opacity-60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </button>
+            </div>
+
+            <!-- 社群連結 -->
+            <div id="socialGrid" class="grid grid-cols-4 gap-4 mt-12"></div>
+
+            <!-- 服務項目 -->
+            <div class="mt-14 mb-8">
+                <h2 class="text-lg font-bold text-coffee mb-6 flex items-center gap-2">
+                    <span class="w-1 h-5 bg-gold rounded-full"></span>
+                    服務項目 / Services
+                </h2>
+                <div id="servicesList" class="space-y-4"></div>
+            </div>
+
+            <!-- QR Code 區塊 -->
+            <div class="mb-36">
+                <div onclick="toggleModal('qrModal', true)" class="bg-beige/30 rounded-3xl p-8 flex flex-col items-center cursor-pointer hover:shadow-md transition-premium border border-white group">
+                    <div id="qrPreview" class="w-24 h-24 bg-white p-3 rounded-2xl shadow-inner mb-4 group-hover:scale-105 transition-premium flex items-center justify-center overflow-hidden">
+                        <svg class="w-full h-full text-slate-200" viewBox="0 0 100 100">
+                            <rect x="10" y="10" width="30" height="30" fill="currentColor"/>
+                            <rect x="60" y="10" width="30" height="30" fill="currentColor"/>
+                            <rect x="10" y="60" width="30" height="30" fill="currentColor"/>
+                            <rect x="50" y="50" width="10" height="10" fill="currentColor"/>
+                            <rect x="70" y="70" width="20" height="20" fill="currentColor"/>
+                        </svg>
+                    </div>
+                    <p class="text-[10px] text-slate-400 font-bold tracking-[0.2em] uppercase">點擊顯示 QR Code</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部導購按鈕 -->
+        <div class="fixed bottom-0 left-0 w-full flex justify-center p-6 z-20 pointer-events-none">
+            <a id="ctaButton" href="#" class="pointer-events-auto w-full max-w-[calc(448px-3rem)] bg-coffee text-white text-center py-4 rounded-2xl font-bold shadow-2xl hover:bg-gold transition-premium active:scale-[0.98] tracking-widest text-sm uppercase">
+                讀取中...
+            </a>
+        </div>
+    </main>
+
+    <!-- 加載中骨架屏 -->
+    <div id="skeleton" class="fixed inset-0 flex justify-center bg-beige z-[100]">
+        <div class="w-full max-w-md bg-white flex flex-col px-8 pt-48">
+            <div class="w-36 h-36 rounded-full loading-shimmer mx-auto mb-8"></div>
+            <div class="h-8 w-48 loading-shimmer mx-auto mb-4"></div>
+            <div class="h-4 w-64 loading-shimmer mx-auto mb-12"></div>
+            <div class="grid grid-cols-4 gap-4">
+                <div class="aspect-square rounded-2xl loading-shimmer"></div>
+                <div class="aspect-square rounded-2xl loading-shimmer"></div>
+                <div class="aspect-square rounded-2xl loading-shimmer"></div>
+                <div class="aspect-square rounded-2xl loading-shimmer"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="bioModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-6">
+        <div onclick="toggleModal('bioModal', false)" class="absolute inset-0 glass-overlay"></div>
+        <div class="bg-white w-full max-w-sm rounded-4xl p-8 relative z-10 shadow-2xl transform transition-premium scale-95 opacity-0 modal-content">
+            <button onclick="toggleModal('bioModal', false)" class="absolute top-4 right-4 p-2 text-slate-300 hover:text-coffee transition-premium"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+            <h3 class="text-xl font-bold text-coffee mb-4">個人簡介 / About</h3>
+            <div id="bioText" class="text-slate-600 leading-relaxed markdown-content text-sm sm:text-base"></div>
+        </div>
+    </div>
+
+    <div id="qrModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-6">
+        <div onclick="toggleModal('qrModal', false)" class="absolute inset-0 glass-overlay"></div>
+        <div class="bg-white w-full max-w-xs rounded-4xl p-10 relative z-10 shadow-2xl flex flex-col items-center transform transition-premium scale-95 opacity-0 modal-content">
+            <h3 class="text-lg font-bold text-coffee mb-8 tracking-wide">掃描加入聯絡人</h3>
+            <div id="qrFullImage" class="w-48 h-48 bg-slate-50 p-6 rounded-3xl shadow-inner border border-slate-100 flex items-center justify-center overflow-hidden"></div>
+            <p class="mt-8 text-xs text-slate-400 font-medium uppercase tracking-widest">Scan to Save Contact</p>
+        </div>
+    </div>
+
+    <div id="avatarModal" class="fixed inset-0 z-[60] hidden flex items-center justify-center p-4">
+        <div onclick="toggleModal('avatarModal', false)" class="absolute inset-0 glass-overlay"></div>
+        <div class="relative z-10 w-72 h-72 rounded-full overflow-hidden border-8 border-white/50 shadow-2xl transform transition-premium scale-75 opacity-0 modal-content bg-white flex items-center justify-center">
+            <div id="zoomAvatarContent" class="w-full h-full"></div>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 px-6 py-3 bg-coffee/95 text-white rounded-full text-xs font-bold tracking-widest opacity-0 translate-y-4 pointer-events-none transition-premium z-[100] shadow-xl"></div>
+
+    <script>
+        const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQRBVTXL35UdmueK9XkxzPUWzCYqNwSp-rLHoG3k0zLO5vF39XxRqTRdzuoZa_tFdB-E0zS_Wo8DMM4/pub?gid=1068697567&single=true&output=csv";
+
+        let config = { 
+            profile: { name_zh: "", name_en: "", title: "", tagline: "", bio: "", headshot: "" }, 
+            socials: [], services: [], cta: { text: "請稍候", url: "#" }, qrcode: "" 
+        };
+
+        async function fetchCloudData() {
+            try {
+                const response = await fetch(SHEET_CSV_URL);
+                if (!response.ok) throw new Error("存取失敗");
+                const csvData = await response.text();
+                parseCSV(csvData);
+                renderApp();
+            } catch (error) {
+                console.error("Fetch Error:", error);
+                renderApp(); 
+            }
+        }
+
+        function parseCSV(csvText) {
+            const rows = parseCSVContent(csvText);
+            const dataMap = new Map();
+            rows.forEach(row => { if (row.length >= 2) dataMap.set(row[0].replace(/^\uFEFF/, '').toLowerCase().trim(), row[1]); });
+
+            const getVal = (keywords) => {
+                for (let [k, v] of dataMap) { if (keywords.some(kw => k.includes(kw.toLowerCase()))) return v; }
+                return "";
+            };
+
+            config = {
+                profile: {
+                    name_zh: getVal(["name_zh", "中文姓名"]) || "姓名佔位",
+                    name_en: getVal(["name_en", "英文姓名"]) || "Name Placeholder",
+                    title: getVal(["title", "職稱"]) || "專業職稱",
+                    tagline: getVal(["tagline", "標語", "slogan"]) || "「以此數位名片傳遞最誠摯的連結」",
+                    headshot: getVal(["headshot", "頭像", "photo"]) || "https://graph.facebook.com/61551932082077/picture?type=large&width=500&height=500",
+                    bio: getVal(["bio", "介紹", "自我介紹"]) || "歡迎來到我的個人數位名片。"
+                },
+                socials: [
+                    { platform: "IG", url: getVal(["Instagram", "IG"]), icon: '<path d="M7 2H17C19.7614 2 22 4.23858 22 7V17C22 19.7614 19.7614 22 17 22H7C4.23858 22 2 19.7614 2 17V7C2 4.23858 4.23858 2 7 2Z" stroke-width="2"/><circle cx="12" cy="12" r="4" stroke-width="2"/><circle cx="18" cy="6" r="1" fill="currentColor"/>' },
+                    { platform: "FB", url: getVal(["Facebook", "FB"]), icon: '<path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>' },
+                    { platform: "Email", url: getVal(["Email", "郵件"]), icon: '<path d="M3 8L10.8906 13.2604C11.5624 13.7083 12.4376 13.7083 13.1094 13.2604L21 8M5 19H19C20.1046 19 21 18.1046 21 17V7C21 5.89543 20.1046 5 19 5H5C3.89543 5 3 5.89543 3 7V17C3 18.1046 3.89543 19 5 19Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>' },
+                    { platform: "LINE", url: getVal(["LINE"]), icon: '<path d="M21 11.5C21 7.35786 16.9706 4 12 4C7.02944 4 3 7.35786 3 11.5C3 15.1973 6.13063 18.2323 10.375 18.8913C10.6625 18.9413 11.0375 19.0538 11.1375 19.3375C11.2375 19.6213 11.2 20.0713 11.125 20.4713C11.125 20.4713 10.95 21.5213 10.85 22.1213C10.775 22.5713 10.5125 23.4463 11.4375 22.9963C12.3625 22.5463 16.425 20.0713 18.25 18.2463C20.025 16.4713 21 14.1713 21 11.5Z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>' }
+                ],
+                services: [
+                    { title: getVal(["服務項目 1 - 標題"]), content: getVal(["服務項目 1 - 內容"]) },
+                    { title: getVal(["服務項目 2 - 標題"]), content: getVal(["服務項目 2 - 內容"]) }
+                ],
+                cta: { text: getVal(["按鈕文字", "cta.text", "行動呼籲"]) || "預約諮詢", url: getVal(["按鈕網址", "cta.url"]) || "#" },
+                qrcode: getVal(["QRCode", "二維碼", "qr碼"])
+            };
+        }
+
+        function parseCSVContent(str) {
+            const arr = []; let quote = false;
+            for (let row = col = c = 0; c < str.length; c++) {
+                let cc = str[c], nc = str[c+1];
+                arr[row] = arr[row] || []; arr[row][col] = arr[row][col] || '';
+                if (cc == '"' && quote && nc == '"') { arr[row][col] += cc; ++c; continue; }
+                if (cc == '"') { quote = !quote; continue; }
+                if (cc == ',' && !quote) { ++col; continue; }
+                if (cc == '\r' && nc == '\n' && !quote) { ++row; col = 0; ++c; continue; }
+                if (cc == '\n' && !quote) { ++row; col = 0; continue; }
+                arr[row][col] += cc;
+            }
+            return arr;
+        }
+
+        function renderApp() {
+            document.getElementById('userName').innerHTML = `${config.profile.name_zh} <span class="text-xs font-normal text-slate-400 block mt-1 tracking-widest uppercase">${config.profile.name_en}</span>`;
+            document.getElementById('userTitle').innerText = config.profile.title;
+            document.getElementById('userTagline').innerText = config.profile.tagline;
+            document.getElementById('bioText').innerHTML = parseMarkdown(config.profile.bio);
+
+            if(config.profile.headshot) {
+                const container = document.getElementById('avatarContainer');
+                container.querySelectorAll('img').forEach(i => i.remove());
+                const img = document.createElement('img');
+                img.src = config.profile.headshot;
+                img.className = "w-full h-full object-cover transition-premium";
+                img.onload = () => document.getElementById('mainAvatarSvg').style.display = 'none';
+                container.appendChild(img);
+            }
+
+            const grid = document.getElementById('socialGrid');
+            grid.innerHTML = "";
+            config.socials.filter(s => s.url && s.url !== "#" && s.url !== "").forEach(social => {
+                const btn = document.createElement('a');
+                btn.href = social.url; btn.target = "_blank";
+                btn.className = "flex flex-col items-center gap-2 group transition-premium";
+                btn.innerHTML = `<div class="w-full aspect-square flex items-center justify-center bg-slate-50 rounded-2xl border border-slate-100 group-hover:bg-coffee group-hover:shadow-lg transition-premium"><svg class="w-6 h-6 text-coffee group-hover:text-white transition-premium" fill="none" stroke="currentColor" viewBox="0 0 24 24">${social.icon}</svg></div><span class="text-[9px] font-bold text-slate-300 group-hover:text-gold uppercase tracking-tighter text-center truncate w-full">${social.platform}</span>`;
+                grid.appendChild(btn);
+            });
+
+            const list = document.getElementById('servicesList');
+            list.innerHTML = "";
+            config.services.filter(s => s && s.title).forEach(service => {
+                const item = document.createElement('div');
+                item.className = "bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-sm transition-premium";
+                item.innerHTML = `<button onclick="toggleAccordion(this)" class="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-slate-50 group transition-premium"><span class="font-bold text-coffee group-hover:text-gold transition-premium">${service.title}</span><svg class="w-4 h-4 text-slate-300 transform transition-premium" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg></button><div class="max-h-0 overflow-hidden transition-all duration-500 ease-premium bg-slate-50/20"><div class="px-6 pb-6 pt-1 text-sm text-slate-500 markdown-content leading-relaxed">${parseMarkdown(service.content)}</div></div>`;
+                list.appendChild(item);
+            });
+
+            if(config.qrcode) {
+                const qrImg = `<img src="${config.qrcode}" class="w-full h-full object-contain">`;
+                document.getElementById('qrPreview').innerHTML = qrImg;
+                document.getElementById('qrFullImage').innerHTML = qrImg;
+            }
+
+            const cta = document.getElementById('ctaButton');
+            cta.href = config.cta.url;
+            cta.innerText = config.cta.text;
+
+            document.getElementById('skeleton').style.display = 'none';
+            document.getElementById('appContainer').classList.remove('opacity-0');
+        }
+
+        function parseMarkdown(t) { return (t || "").replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\\n/g, '<br>').replace(/\n/g, '<br>'); }
+        function toggleModal(id, show) {
+            const m = document.getElementById(id); const c = m.querySelector('.modal-content');
+            if(show){ m.classList.remove('hidden'); setTimeout(() => { c.classList.remove('scale-75', 'opacity-0'); c.classList.add('scale-100', 'opacity-100'); }, 10); }
+            else { c.classList.add('opacity-0'); c.classList.remove('scale-100'); setTimeout(() => m.classList.add('hidden'), 400); }
+        }
+        function toggleZoomImage() { document.getElementById('zoomAvatarContent').innerHTML = document.getElementById('avatarContainer').innerHTML; toggleModal('avatarModal', true); }
+        function toggleAccordion(btn) {
+            const content = btn.nextElementSibling; const icon = btn.querySelector('svg');
+            const isOpen = content.style.maxHeight && content.style.maxHeight !== '0px';
+            document.querySelectorAll('#servicesList div[class*="max-h"]').forEach(c => c.style.maxHeight = '0px');
+            document.querySelectorAll('#servicesList svg').forEach(i => i.style.transform = 'rotate(0deg)');
+            if(!isOpen){ content.style.maxHeight = content.scrollHeight + 'px'; icon.style.transform = 'rotate(180deg)'; }
+        }
+        function handleShare() { if(navigator.share) navigator.share({title: document.title, url: window.location.href}); else { copyToClipboard(window.location.href); } }
+        function copyToClipboard(t) { const i = document.createElement('input'); i.value = t; document.body.appendChild(i); i.select(); document.execCommand('copy'); document.body.removeChild(i); const toast = document.getElementById('toast'); toast.innerText = "網址已複製至剪貼簿"; toast.classList.remove('opacity-0', 'translate-y-4'); toast.classList.add('opacity-100', 'translate-y-0'); setTimeout(() => { toast.classList.add('opacity-0', 'translate-y-4'); toast.classList.remove('opacity-100', 'translate-y-0'); }, 2000); }
+
+        window.onload = fetchCloudData;
+    </script>
+</body>
+</html>
