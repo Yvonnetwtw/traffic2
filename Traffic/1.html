@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ESP Vocabulary Adventure</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* --- DESIGN SYSTEM & GAME VARIABLES --- */
+        :root {
+            --color-a: linear-gradient(180deg, #3B82F6, #2563EB);
+            --color-b: linear-gradient(180deg, #22C55E, #16A34A);
+            --color-c: linear-gradient(180deg, #FCD34D, #D97706);
+            --color-d: linear-gradient(180deg, #FB923C, #EA580C);
+            
+            --glass-bg: rgba(255, 255, 255, 0.45);
+            --glass-border: rgba(255, 255, 255, 0.7);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Nunito', sans-serif; user-select: none; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            background-color: #0F172A;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #app-container {
+            width: 100%;
+            max-width: 420px;
+            height: 100vh;
+            background: linear-gradient(180deg, #E0F2FE 0%, #BAE6FD 40%, #7DD3FC 100%);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 0 40px rgba(0,0,0,0.6);
+            overflow: hidden;
+        }
+
+        /* --- CHARACTER SELECTION MODAL --- */
+        .modal-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(5px);
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: linear-gradient(180deg, #FFFFFF 0%, #E0F2FE 100%);
+            padding: 30px 20px;
+            border-radius: 24px;
+            border: 4px solid #38BDF8;
+            text-align: center;
+            width: 90%;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.5), inset 0 4px 0 white;
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-content h2 {
+            color: #0284C7;
+            font-size: 1.6rem;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 0 white;
+            line-height: 1.2;
+        }
+
+        /* AI Topic Input Area */
+        .ai-topic-area {
+            background: rgba(255,255,255,0.8);
+            border: 2px dashed #38BDF8;
+            border-radius: 16px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .ai-topic-area label {
+            font-weight: 800;
+            color: #0369A1;
+            font-size: 0.95rem;
+        }
+
+        .topic-input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            border: 2px solid #BAE6FD;
+            font-size: 1rem;
+            font-weight: 700;
+            color: #1E293B;
+            text-align: center;
+            outline: none;
+            user-select: auto;
+        }
+        .topic-input:focus { border-color: #0284C7; }
+
+        .char-options {
+            display: flex;
+            justify-content: space-around;
+            gap: 15px;
+        }
+
+        .char-card {
+            flex: 1;
+            background: white;
+            border: 3px solid #BAE6FD;
+            border-radius: 16px;
+            padding: 20px 10px 15px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 6px 0 #94A3B8;
+            position: relative;
+        }
+
+        .char-card:active { transform: translateY(6px); box-shadow: 0 0 0 #94A3B8; }
+
+        .char-card.picked-player { border-color: #22C55E; background: #DCFCE7; transform: scale(1.05); box-shadow: 0 8px 15px rgba(34, 197, 94, 0.3); pointer-events: none; }
+        .char-card.picked-npc { border-color: #EF4444; background: #FEE2E2; transform: scale(1.05); box-shadow: 0 8px 15px rgba(239, 68, 68, 0.3); pointer-events: none; }
+
+        .selection-badge {
+            position: absolute; top: -12px; left: 50%; transform: translateX(-50%) scale(0);
+            padding: 4px 16px; border-radius: 12px; font-weight: 900; font-size: 0.85rem; color: white;
+            white-space: nowrap; transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2); z-index: 10;
+        }
+
+        .char-card.picked-player .selection-badge { background: #16A34A; transform: translateX(-50%) scale(1); }
+        .char-card.picked-npc .selection-badge { background: #DC2626; transform: translateX(-50%) scale(1); }
+
+        .char-icon { font-size: 3.5rem; margin-bottom: 10px; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.2)); }
+        .char-name { font-weight: 900; color: #1E293B; font-size: 1rem; }
+
+        @keyframes popIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+        /* Loading Overlay */
+        #loading-overlay {
+            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.9); z-index: 200; flex-direction: column;
+            justify-content: center; align-items: center; color: white; backdrop-filter: blur(5px);
+        }
+        .spinner { font-size: 4rem; animation: spin 2s linear infinite; margin-bottom: 20px; filter: drop-shadow(0 0 15px #38BDF8); }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        .loading-text { font-weight: 900; font-size: 1.2rem; background: -webkit-linear-gradient(#38BDF8, #A7F3D0); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+        /* --- TOP SCENIC BOARD AREA --- */
+        .board-area {
+            width: 100%; height: 38%; flex-shrink: 0; position: relative; z-index: 1;
+            background: linear-gradient(180deg, #7DD3FC 0%, #BAE6FD 45%, #6EE7B7 45%, #34D399 100%);
+            display: flex; align-items: flex-end; padding-bottom: 30px; overflow: hidden;
+        }
+
+        .board-area::before { content: '☁️'; position: absolute; top: 10px; left: 20px; font-size: 2rem; opacity: 0.8; }
+        .board-area::after { content: '☁️'; position: absolute; top: 25px; right: 40px; font-size: 2.5rem; opacity: 0.6; }
+        .scenery-hills { position: absolute; top: 35%; left: 0; right: 0; font-size: 3rem; display: flex; justify-content: space-between; padding: 0 10px; opacity: 0.9; }
+
+        /* --- NPC NOTIFICATION --- */
+        .npc-notify {
+            position: absolute; top: 15px; left: 50%; transform: translateX(-50%) translateY(-20px);
+            background: rgba(15, 23, 42, 0.85); color: white; padding: 6px 16px; border-radius: 20px;
+            font-size: 0.9rem; font-weight: 900; opacity: 0; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 20; pointer-events: none; border: 2px solid rgba(255,255,255,0.2); box-shadow: 0 4px 10px rgba(0,0,0,0.3); white-space: nowrap;
+        }
+        .npc-notify.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        .scrolling-path {
+            display: flex; gap: 12px; padding: 0 25px; width: 100%; overflow-x: auto;
+            scrollbar-width: none; scroll-behavior: smooth; align-items: center; position: relative; z-index: 5;
+        }
+
+        .tile {
+            min-width: 65px; height: 60px; border-radius: 12px; display: flex; align-items: center; justify-content: center;
+            font-weight: 900; font-size: 1.5rem; color: white; position: relative;
+            background: linear-gradient(180deg, #FCD34D, #D97706); border: 2px solid #FEF3C7;
+            box-shadow: 0 6px 0 #92400E, 0 10px 15px rgba(0,0,0,0.2), inset 0 2px 0 rgba(255,255,255,0.4);
+            text-shadow: 0 2px 2px rgba(0,0,0,0.3); flex-shrink: 0; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .tile:nth-child(even) { transform: translateY(-12px); }
+        .tile:nth-child(odd) { transform: translateY(8px); }
+        .tile-start { background: linear-gradient(180deg, #60A5FA, #2563EB); border-color: #BFDBFE; box-shadow: 0 6px 0 #1E3A8A, 0 10px 15px rgba(0,0,0,0.2); font-size: 1.1rem; }
+        .tile-end { background: linear-gradient(180deg, #F87171, #DC2626); border-color: #FECACA; box-shadow: 0 6px 0 #7F1D1D, 0 10px 15px rgba(0,0,0,0.2); font-size: 1.1rem; }
+        .tile.active { background: linear-gradient(180deg, #4ADE80, #16A34A); border-color: #BBF7D0; box-shadow: 0 6px 0 #14532D, 0 0 20px rgba(74, 222, 128, 0.8); z-index: 10; }
+
+        .pawn { position: absolute; font-size: 45px; filter: drop-shadow(0 6px 4px rgba(0,0,0,0.4)); transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); z-index: 15; margin-top: -40px; }
+        .npc-pawn { font-size: 35px; margin-top: -55px; opacity: 0.9; z-index: 14; }
+
+        /* --- MIDDLE DIVIDER BANNER --- */
+        .divider-container { position: relative; z-index: 15; display: flex; justify-content: center; margin-top: -22px; margin-bottom: -10px; }
+        .ribbon-banner { background: linear-gradient(180deg, #38BDF8 0%, #0284C7 100%); border: 3px solid #FFDF73; border-radius: 30px; padding: 6px 35px; color: white; font-weight: 900; font-size: 1.3rem; text-shadow: 0 2px 4px rgba(0,0,0,0.4); box-shadow: 0 6px 0 #F59E0B, 0 10px 15px rgba(0,0,0,0.2), inset 0 2px 0 rgba(255,255,255,0.4); }
+
+        /* --- MIDDLE PANEL UI --- */
+        .card-container {
+            flex: 1; background: var(--glass-bg); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border-top: 2px solid var(--glass-border); border-bottom: 2px solid var(--glass-border); padding: 20px 16px 12px 16px;
+            display: flex; flex-direction: column; gap: 8px; position: relative; z-index: 5;
+        }
+
+        .word-header { text-align: center; display: flex; flex-direction: column; align-items: center; margin-bottom: 0; }
+        .word-title { font-size: 2.3rem; font-weight: 900; color: #1E293B; display: flex; align-items: center; gap: 12px; line-height: 1.1; text-shadow: 0 2px 0 rgba(255,255,255,0.8); }
+        .speaker-icon { color: #3B82F6; font-size: 1.5rem; cursor: pointer; transition: transform 0.1s; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.1)); }
+        .speaker-icon:active { transform: scale(0.9); }
+        .word-phonetic { font-size: 1rem; color: #334155; font-weight: 800; margin-bottom: 5px; }
+
+        /* AI Context Hint Area */
+        .ai-hint-btn {
+            background: linear-gradient(180deg, #E0E7FF, #C7D2FE); color: #4338CA; border: 2px solid #A5B4FC;
+            padding: 4px 12px; border-radius: 12px; font-weight: 800; font-size: 0.85rem; cursor: pointer;
+            display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 0 #818CF8; margin-bottom: 5px;
+        }
+        .ai-hint-btn:active { transform: translateY(2px); box-shadow: 0 0 0 transparent; }
+        
+        .ai-hint-display {
+            background: rgba(255,255,255,0.8); border: 1px dashed #818CF8; border-radius: 8px; padding: 8px;
+            font-size: 0.85rem; color: #312E81; font-weight: 700; text-align: center; display: none; margin-bottom: 5px;
+            animation: fadeIn 0.3s ease-out;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- OPTIONS GRID --- */
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 4px; }
+        .opt-btn { background: linear-gradient(180deg, #F8FAFC 0%, #E2E8F0 100%); border: 2px solid #FFFFFF; box-shadow: 0 4px 6px rgba(0,0,0,0.1), inset 0 -3px 0 #CBD5E1; border-radius: 12px; display: flex; align-items: center; padding: 6px; gap: 10px; cursor: pointer; transition: transform 0.1s; }
+        .opt-btn:active { transform: translateY(3px); box-shadow: 0 1px 3px rgba(0,0,0,0.1), inset 0 -1px 0 #CBD5E1; }
+        .opt-letter { width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.2rem; color: white; box-shadow: inset 0 -2px 0 rgba(0,0,0,0.2); flex-shrink: 0;}
+        .opt-text { font-weight: 900; font-size: 0.9rem; flex: 1; color: #1E3A8A; line-height: 1.1;}
+        .opt-icon { font-size: 1rem; color: #3B82F6; margin-right: 4px; padding: 2px; }
+
+        .opt-btn[data-idx="0"] .opt-letter { background: var(--color-a); }
+        .opt-btn[data-idx="1"] .opt-letter { background: var(--color-b); }
+        .opt-btn[data-idx="2"] .opt-letter { background: var(--color-c); }
+        .opt-btn[data-idx="3"] .opt-letter { background: var(--color-d); }
+
+        .opt-btn.correct-ans { background: linear-gradient(180deg, #4ADE80 0%, #16A34A 100%); border-color: #BBF7D0; box-shadow: 0 4px 6px rgba(22, 163, 74, 0.4), inset 0 -3px 0 #064E3B; }
+        .opt-btn.correct-ans .opt-letter { background: rgba(0,0,0,0.2) !important; box-shadow: none; }
+        .opt-btn.correct-ans .opt-text { color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+        .opt-btn.correct-ans .opt-icon { color: white; font-weight: bold; }
+        .opt-btn.wrong-ans { filter: grayscale(60%); opacity: 0.8; box-shadow: 0 2px 0 rgba(0,0,0,0.2); transform: translateY(2px); pointer-events: none;}
+
+        /* --- FEEDBACK WRAPPER --- */
+        .feedback-wrapper {
+            background: rgba(255, 255, 255, 0.5); border: 2px solid rgba(255, 255, 255, 0.9); border-radius: 50px; padding: 6px;
+            display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            opacity: 0; pointer-events: none; transform: translateY(10px); transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            margin-top: auto;
+        }
+        .feedback-wrapper.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
+        .feedback-wrapper.wrong-bg .feedback-msg { color: #DC2626; }
+        .feedback-wrapper.wrong-bg .check-circle { background: #DC2626; }
+
+        .feedback-msg { display: flex; align-items: center; gap: 8px; font-weight: 900; color: #059669; font-size: 1.05rem; padding-left: 6px; }
+        .check-circle { background: #10B981; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.2); font-size: 0.9rem; }
+        
+        .next-btn {
+            background: linear-gradient(180deg, #FCD34D, #D97706); color: white; border: 2px solid #FEF3C7; padding: 6px 16px; border-radius: 20px;
+            font-weight: 900; font-size: 1rem; box-shadow: 0 4px 0 #92400E, inset 0 2px 0 rgba(255,255,255,0.4); cursor: pointer; text-shadow: 0 1px 2px rgba(0,0,0,0.5); display: flex; align-items: center; gap: 4px;
+        }
+        .next-btn:active { transform: translateY(4px); box-shadow: 0 0 0 transparent; }
+
+        /* --- BOTTOM CONSOLE --- */
+        .bottom-console { display: flex; justify-content: space-between; align-items: flex-end; padding: 10px 16px 20px; position: relative; z-index: 20; }
+        .side-btn {
+            width: 80px; height: 45px; border-radius: 25px; font-weight: 900; font-size: 1.1rem; color: white; border: 2px solid white;
+            display: flex; justify-content: center; align-items: center; cursor: pointer; transition: transform 0.1s; text-shadow: 0 2px 2px rgba(0,0,0,0.3); box-shadow: 0 4px 0 rgba(0,0,0,0.3), inset 0 2px 4px rgba(255,255,255,0.4); margin-bottom: 12px;
+        }
+        .btn-start { background: linear-gradient(180deg, #34D399, #059669); }
+        .btn-end { background: linear-gradient(180deg, #F87171, #DC2626); }
+        .side-btn:active { transform: translateY(4px); box-shadow: 0 0 0 transparent; }
+
+        .central-dock { width: 150px; background: #1E293B; border: 4px solid #FCD34D; border-radius: 24px; box-shadow: 0 8px 16px rgba(0,0,0,0.4), inset 0 0 0 1px #92400E; display: flex; flex-direction: column; overflow: hidden; margin-top: -30px; }
+        .dock-dice-area { height: 75px; background: radial-gradient(circle at center, #38BDF8 0%, #0284C7 100%); border-bottom: 2px solid #FCD34D; display: flex; justify-content: center; align-items: center; gap: 12px; cursor: pointer; position: relative; }
+        .dock-dice-area::before { content: '✨ ✦'; position: absolute; top: 8px; color: rgba(255,255,255,0.4); letter-spacing: 25px; font-size: 1rem; }
+        .dice-icon { background: linear-gradient(180deg, #FFFFFF, #E2E8F0); width: 44px; height: 44px; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-size: 2rem; box-shadow: 0 4px 0 #94A3B8, inset 0 2px 0 white; z-index: 1; color: #1E293B; text-shadow: none; transition: all 0.2s; }
+        .dock-dice-area:active .dice-icon { transform: translateY(4px); box-shadow: 0 0 0 #94A3B8, inset 0 1px 0 white; }
+        .dice-val { font-size: 2.2rem; font-weight: 900; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.5); z-index: 1; }
+        .dock-row-1 { background: #1E293B; color: white; text-align: center; font-size: 0.7rem; font-weight: 900; padding: 4px 0; letter-spacing: 0.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .dock-row-2 { background: #0F172A; color: white; display: flex; justify-content: space-evenly; align-items: center; font-size: 0.75rem; font-weight: 900; padding: 5px 0; border-top: 1px solid #334155; }
+
+        @keyframes rollShake { 0% { transform: rotate(0) scale(1); } 25% { transform: rotate(-15deg) scale(1.1); } 50% { transform: rotate(15deg) scale(1.1); } 75% { transform: rotate(-15deg) scale(1.1); } 100% { transform: rotate(0) scale(1); } }
+        .rolling .dice-icon { animation: rollShake 0.4s ease-in-out; }
+        
+        @keyframes jumpAnim { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-30px); } }
+        .jumping { animation: jumpAnim 0.4s ease-out; }
+
+    </style>
+</head>
+<body>
+
+<div id="app-container">
+    
+    <!-- Loading Overlay for API Calls -->
+    <div id="loading-overlay">
+        <div class="spinner">✨</div>
+        <div class="loading-text" id="loading-msg">Consulting the AI...</div>
+    </div>
+
+    <!-- Character Selection Modal -->
+    <div id="char-select-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h2 id="modal-title">✨ AI Game Setup</h2>
+            
+            <div class="ai-topic-area">
+                <label for="topic-input">Choose Your Topic (Optional)</label>
+                <input type="text" id="topic-input" class="topic-input" placeholder="e.g. AI, Music, Finance..." value="Machine Learning">
+            </div>
+
+            <h2 style="font-size: 1.2rem;">Choose Your Explorer</h2>
+            <div class="char-options">
+                <div class="char-card" id="char-boy" onclick="selectCharacter('boy')">
+                    <div class="selection-badge" id="badge-boy">You</div>
+                    <div class="char-icon">👦</div>
+                    <div class="char-name">Tech Boy</div>
+                </div>
+                <div class="char-card" id="char-panda" onclick="selectCharacter('panda')">
+                    <div class="selection-badge" id="badge-panda">Opponent</div>
+                    <div class="char-icon">🐼</div>
+                    <div class="char-name">Cyber Panda</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Scenic Board Area -->
+    <div class="board-area">
+        <div class="scenery-hills"><span>🏔️</span><span>🌲</span><span>🏰</span></div>
+        <div id="npc-notification" class="npc-notify">🐼 Cyber Panda rolled a 2!</div>
+        <div class="scrolling-path" id="path-container">
+            <!-- Tiles & Pawns injected by JS -->
+        </div>
+    </div>
+
+    <!-- Divider Banner -->
+    <div class="divider-container">
+        <div class="ribbon-banner" id="instruction-banner">
+            Roll Dice
+        </div>
+    </div>
+
+    <!-- Question Card -->
+    <div class="card-container">
+        <div class="word-header">
+            <div class="word-title">
+                <span id="q-word">rasterize</span>
+                <span class="speaker-icon" onclick="playVoice()">🔊</span>
+            </div>
+            <div class="word-phonetic" id="q-phonetic">/ˈræstəˌraɪz/</div>
+        </div>
+        
+        <div style="text-align: center;">
+            <button class="ai-hint-btn" onclick="getAIHint()">✨ Context Hint</button>
+            <div id="ai-hint-display" class="ai-hint-display"></div>
+        </div>
+
+        <div class="options-grid" id="options-container">
+            <!-- Options injected here -->
+        </div>
+
+        <div class="feedback-wrapper" id="feedback-banner">
+            <div class="feedback-msg">
+                <div class="check-circle" id="feedback-icon">✔</div> 
+                <span id="feedback-text">Correct! +10 points</span>
+            </div>
+            <button class="next-btn" onclick="nextQuestion()">Next Question ▶</button>
+        </div>
+    </div>
+
+    <!-- Bottom Console -->
+    <div class="bottom-console">
+        <button class="side-btn btn-start" onclick="resetGame(true)">Restart</button>
+        
+        <div class="central-dock" id="central-dock">
+            <div class="dock-dice-area" onclick="rollDice()">
+                <div class="dice-icon">🎲</div>
+                <div class="dice-val" id="dice-val">-</div>
+            </div>
+            <div class="dock-row-1" id="ui-topic-label">Level 1 ⭐ ESP</div>
+            <div class="dock-row-2">
+                <span>⚡ <span id="ui-energy-num">3/5</span></span>
+                <span style="color: #FCD34D;">🪙 <span id="ui-score">25</span></span>
+            </div>
+        </div>
+
+        <button class="side-btn btn-end" onclick="alert('Game Saved!')">End</button>
+    </div>
+
+</div>
+
+<script>
+    // --- Gemini API Configuration ---
+    const apiKey = ""; 
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+
+    // Exponential Backoff Fetch
+    async function fetchWithRetry(url, options, maxRetries = 5) {
+        const delays = [1000, 2000, 4000, 8000, 16000];
+        for (let i = 0; i < maxRetries; i++) {
+            try {
+                const response = await fetch(url, options);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return await response.json();
+            } catch (e) {
+                if (i === maxRetries - 1) throw e;
+                await new Promise(resolve => setTimeout(resolve, delays[i]));
+            }
+        }
+    }
+
+    // --- Vocabulary Data (Default Fallback) ---
+    let words = [
+        { word: "rasterize", phonetic: "/ˈræstəˌraɪz/", options: ["向量化", "點陣化", "動畫製作", "資料壓縮"], correct: 1 },
+        { word: "keyframe", phonetic: "/ˈkiːfreɪm/", options: ["主畫面", "背景", "關鍵影格", "渲染"], correct: 2 },
+        { word: "dataset", phonetic: "/ˈdeɪtəset/", options: ["資料集", "網路架構", "編碼器", "存儲器"], correct: 0 },
+        { word: "neural network", phonetic: "/ˈnjʊərəl ˈnetwɜːrk/", options: ["電腦硬體", "神經網路", "光學掃描", "位元深度"], correct: 1 },
+        { word: "rendering", phonetic: "/ˈrendərɪŋ/", options: ["預演", "掃描", "剪輯", "渲染"], correct: 3 }
+    ];
+
+    // --- State Management ---
+    let state = {
+        playerPos: 0, npcPos: 0, totalTiles: 10, currentQ: 0, diceValue: 0,
+        score: 25, energy: 3, canAnswer: false, canRoll: true,
+        playerMascot: '👦', npcMascot: '🐼', playerName: 'Tech Boy', npcName: 'Cyber Panda',
+        selecting: false, topic: 'Machine Learning'
+    };
+
+    // --- DOM Elements ---
+    const centralDock = document.getElementById('central-dock');
+    const diceValTxt = document.getElementById('dice-val');
+    const instructionBanner = document.getElementById('instruction-banner');
+    const optionsContainer = document.getElementById('options-container');
+    const feedbackBanner = document.getElementById('feedback-banner');
+    const feedbackText = document.getElementById('feedback-text');
+    const feedbackIcon = document.getElementById('feedback-icon');
+    const pathContainer = document.getElementById('path-container');
+    const loadingOverlay = document.getElementById('loading-overlay');
+    const loadingMsg = document.getElementById('loading-msg');
+    const hintDisplay = document.getElementById('ai-hint-display');
+
+    // --- Audio System ---
+    const sfx = (type) => {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain); gain.connect(ctx.destination);
+            if(type === 'roll') { osc.frequency.setValueAtTime(400, ctx.currentTime); osc.frequency.exponentialRampToValueAtTime(800, ctx.currentTime + 0.2); gain.gain.setValueAtTime(0.1, ctx.currentTime); osc.start(); osc.stop(ctx.currentTime + 0.2); }
+            if(type === 'correct') { osc.frequency.setValueAtTime(600, ctx.currentTime); osc.frequency.setValueAtTime(800, ctx.currentTime + 0.1); gain.gain.setValueAtTime(0.1, ctx.currentTime); osc.start(); osc.stop(ctx.currentTime + 0.3); }
+            if(type === 'wrong') { osc.frequency.setValueAtTime(300, ctx.currentTime); osc.frequency.exponentialRampToValueAtTime(150, ctx.currentTime + 0.3); gain.gain.setValueAtTime(0.1, ctx.currentTime); osc.start(); osc.stop(ctx.currentTime + 0.3); }
+        } catch(e) {}
+    };
+
+    function playVoice() {
+        const word = words[state.currentQ].word;
+        if ('speechSynthesis' in window) {
+            const msg = new SpeechSynthesisUtterance(word);
+            msg.lang = 'en-US';
+            window.speechSynthesis.speak(msg);
+        }
+    }
+
+    // --- AI Feature 1: Generate Custom Topic ---
+    async function generateCustomVocab(topic) {
+        loadingMsg.innerText = `Generating ${topic} Vocab...✨`;
+        loadingOverlay.style.display = 'flex';
+        
+        const prompt = `Generate 5 advanced English vocabulary multiple-choice questions for university students related to the topic: "${topic}".
+        Provide exactly 4 options per word in Traditional Chinese (zh-TW).
+        Output MUST be a JSON array of objects. Do not use markdown wrappers.`;
+
+        const payload = {
+            contents: [{ parts: [{ text: prompt }] }],
+            systemInstruction: { parts: [{ text: "You are an expert English teacher. Respond ONLY with valid JSON." }] },
+            generationConfig: {
+                responseMimeType: "application/json",
+                responseSchema: {
+                    type: "ARRAY",
+                    items: {
+                        type: "OBJECT",
+                        properties: {
+                            word: { type: "STRING" },
+                            phonetic: { type: "STRING", description: "IPA format e.g. /wɜːrd/" },
+                            options: { type: "ARRAY", items: { type: "STRING" }, description: "4 options in Traditional Chinese" },
+                            correct: { type: "INTEGER", description: "Index of the correct option (0-3)" }
+                        },
+                        required: ["word", "phonetic", "options", "correct"]
+                    }
+                }
+            }
+        };
+
+        try {
+            const result = await fetchWithRetry(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const text = result.candidates[0].content.parts[0].text;
+            const newWords = JSON.parse(text);
+            if (newWords && newWords.length >= 5) {
+                words = newWords;
+            }
+        } catch (error) {
+            console.error("AI Generation failed. Falling back to default.", error);
+            // Keeps default words array if it fails
+        } finally {
+            loadingOverlay.style.display = 'none';
+        }
+    }
+
+    // --- AI Feature 2: Get Context Hint ---
+    async function getAIHint() {
+        const currentWord = words[state.currentQ].word;
+        hintDisplay.style.display = 'block';
+        hintDisplay.innerText = "✨ Thinking...";
+        
+        const prompt = `Explain the English word "${currentWord}" specifically in the context of "${state.topic}" in one very short, simple sentence.`;
+        
+        const payload = { contents: [{ parts: [{ text: prompt }] }] };
+
+        try {
+            const result = await fetchWithRetry(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+            hintDisplay.innerText = text ? `✨ Hint: ${text}` : "✨ Hint unavailable.";
+        } catch (error) {
+            hintDisplay.innerText = "✨ AI hint failed to load. Try again.";
+        }
+    }
+
+    // --- Initialization & Setup ---
+    async function selectCharacter(choice) {
+        if (state.selecting) return;
+        state.selecting = true;
+
+        const topicInput = document.getElementById('topic-input').value.trim();
+        state.topic = topicInput || 'Machine Learning';
+        document.getElementById('ui-topic-label').innerText = `⭐ ${state.topic}`;
+
+        const boyCard = document.getElementById('char-boy');
+        const pandaCard = document.getElementById('char-panda');
+        const boyBadge = document.getElementById('badge-boy');
+        const pandaBadge = document.getElementById('badge-panda');
+        const modalTitle = document.getElementById('modal-title');
+
+        let playerCard, npcCard, playerBadge, npcBadge;
+
+        if (choice === 'boy') {
+            state.playerMascot = '👦'; state.playerName = 'Tech Boy'; state.npcMascot = '🐼'; state.npcName = 'Cyber Panda';
+            playerCard = boyCard; npcCard = pandaCard; playerBadge = boyBadge; npcBadge = pandaBadge;
+        } else {
+            state.playerMascot = '🐼'; state.playerName = 'Cyber Panda'; state.npcMascot = '👦'; state.npcName = 'Tech Boy';
+            playerCard = pandaCard; npcCard = boyCard; playerBadge = pandaBadge; npcBadge = boyBadge;
+        }
+
+        playerCard.classList.add('picked-player');
+        playerBadge.innerText = 'You';
+
+        setTimeout(async () => {
+            modalTitle.innerText = "Opponent is choosing...";
+            
+            setTimeout(async () => {
+                npcCard.classList.add('picked-npc');
+                npcBadge.innerText = 'Opponent';
+                modalTitle.innerText = "Get Ready!";
+                
+                // Hide modal, show loading, generate vocab, start game
+                setTimeout(async () => {
+                    document.getElementById('char-select-modal').style.display = 'none';
+                    
+                    // Reset modal for future
+                    playerCard.classList.remove('picked-player'); npcCard.classList.remove('picked-npc');
+                    modalTitle.innerText = "✨ AI Game Setup";
+                    state.selecting = false;
+
+                    // AI Call
+                    await generateCustomVocab(state.topic);
+
+                    // Start game logic
+                    renderBoard();
+                    loadQuestion();
+                    updateHUD();
+                }, 1000);
+
+            }, 600);
+        }, 400);
+    }
+
+    function renderBoard() {
+        pathContainer.innerHTML = '';
+        for(let i = 0; i <= state.totalTiles; i++) {
+            const tile = document.createElement('div');
+            tile.className = `tile ${i === 0 ? 'tile-start' : (i === state.totalTiles ? 'tile-end' : '')}`;
+            tile.id = `tile-${i}`;
+            tile.innerHTML = i === 0 ? 'START' : (i === state.totalTiles ? 'END<br><span style="font-size:0.6rem">⭐</span>' : i);
+            pathContainer.appendChild(tile);
+        }
+
+        const pPawn = document.createElement('div'); pPawn.className = 'pawn'; pPawn.id = 'player-pawn'; pPawn.innerText = state.playerMascot;
+        const nPawn = document.createElement('div'); nPawn.className = 'pawn npc-pawn'; nPawn.id = 'npc-pawn'; nPawn.innerText = state.npcMascot;
+        pathContainer.appendChild(pPawn); pathContainer.appendChild(nPawn);
+        updatePawnPositions();
+    }
+
+    function updatePawnPositions() {
+        setTimeout(() => {
+            const pTile = document.getElementById(`tile-${state.playerPos}`);
+            const nTile = document.getElementById(`tile-${state.npcPos}`);
+            const pPawn = document.getElementById('player-pawn');
+            const nPawn = document.getElementById('npc-pawn');
+
+            if(pTile && pPawn) {
+                const isEven = state.playerPos % 2 === 0;
+                pPawn.style.left = `${pTile.offsetLeft + 10}px`;
+                pPawn.style.marginTop = isEven ? '-55px' : '-35px';
+
+                document.querySelectorAll('.tile').forEach(t => t.classList.remove('active'));
+                if(state.playerPos > 0 && state.playerPos < state.totalTiles) pTile.classList.add('active');
+                
+                pathContainer.scrollTo({ left: pTile.offsetLeft - 120, behavior: 'smooth' });
+            }
+            if(nTile && nPawn) {
+                 const isEvenN = state.npcPos % 2 === 0;
+                 nPawn.style.left = `${nTile.offsetLeft + 15}px`;
+                 nPawn.style.marginTop = isEvenN ? '-65px' : '-45px';
+            }
+        }, 100);
+    }
+
+    // --- Core Logic ---
+    function rollDice() {
+        if(!state.canRoll) return;
+        
+        sfx('roll');
+        state.canRoll = false;
+        centralDock.classList.add('rolling');
+        hintDisplay.style.display = 'none'; // hide hint on roll
+        
+        setTimeout(() => {
+            state.diceValue = Math.floor(Math.random() * 6) + 1;
+            centralDock.classList.remove('rolling');
+            diceValTxt.innerText = state.diceValue;
+            
+            instructionBanner.innerHTML = `Move ${state.diceValue} Steps`;
+            state.canAnswer = true;
+        }, 400);
+    }
+
+    function loadQuestion() {
+        const q = words[state.currentQ];
+        document.getElementById('q-word').innerText = q.word;
+        document.getElementById('q-phonetic').innerText = q.phonetic;
+        hintDisplay.style.display = 'none'; // Reset hint
+        
+        optionsContainer.innerHTML = '';
+        const letters = ['A', 'B', 'C', 'D'];
+
+        q.options.forEach((opt, idx) => {
+            const btn = document.createElement('div');
+            btn.className = 'opt-btn';
+            btn.dataset.idx = idx;
+            btn.innerHTML = `
+                <div class="opt-letter">${letters[idx]}</div>
+                <div class="opt-text">${opt}</div>
+                <div class="opt-icon">🔊</div>
+            `;
+            btn.onclick = (e) => {
+                if(e.target.innerText === '🔊') playVoice(); 
+                else checkAnswer(idx);
+            };
+            optionsContainer.appendChild(btn);
+        });
+        
+        feedbackBanner.classList.remove('show');
+        instructionBanner.innerHTML = "Roll Dice";
+        diceValTxt.innerText = "-";
+        state.canRoll = true;
+        state.canAnswer = false;
+    }
+
+    function checkAnswer(idx) {
+        if(!state.canAnswer) {
+            instructionBanner.innerText = "⚠️ Roll Dice First!";
+            setTimeout(() => { if(state.canRoll) instructionBanner.innerHTML = "Roll Dice"; }, 1500);
+            return;
+        }
+
+        state.canAnswer = false;
+        const q = words[state.currentQ];
+        const btns = document.querySelectorAll('.opt-btn');
+
+        if(idx === q.correct) {
+            btns[idx].classList.add('correct-ans');
+            btns[idx].querySelector('.opt-icon').innerText = '✔';
+            sfx('correct');
+            
+            const pointsEarned = state.diceValue * 5; 
+            state.score += pointsEarned;
+            
+            feedbackIcon.innerText = "✔";
+            feedbackText.innerHTML = `Correct! +${pointsEarned} points`;
+            feedbackBanner.classList.remove('wrong-bg');
+            feedbackBanner.classList.add('show');
+            
+            movePlayer(state.diceValue);
+        } else {
+            btns[idx].classList.add('wrong-ans');
+            btns[q.correct].classList.add('correct-ans');
+            btns[q.correct].querySelector('.opt-icon').innerText = '✔';
+            
+            sfx('wrong');
+            state.energy = Math.max(0, state.energy - 1);
+            
+            feedbackIcon.innerText = "✖";
+            feedbackText.innerHTML = `Try again!`;
+            feedbackBanner.classList.add('wrong-bg');
+            feedbackBanner.classList.add('show');
+        }
+        
+        updateHUD();
+    }
+
+    function movePlayer(steps) {
+        const pPawn = document.getElementById('player-pawn');
+        pPawn.classList.add('jumping');
+        setTimeout(() => pPawn.classList.remove('jumping'), 400);
+
+        state.playerPos = Math.min(state.totalTiles, state.playerPos + steps);
+        updatePawnPositions();
+        updateHUD();
+
+        if(state.playerPos >= state.totalTiles) {
+            setTimeout(() => {
+                alert(`🏆 You beat ${state.npcName} to the END!\nFinal Coins: ${state.score}`);
+                resetGame(true);
+            }, 800);
+        } else {
+            setTimeout(moveNPC, 800);
+        }
+    }
+
+    function moveNPC() {
+        const npcSteps = Math.floor(Math.random() * 3) + 1;
+        const notify = document.getElementById('npc-notification');
+        notify.innerText = `${state.npcMascot} ${state.npcName} rolled a ${npcSteps}!`;
+        notify.classList.add('show');
+        setTimeout(() => notify.classList.remove('show'), 2500);
+
+        const nPawn = document.getElementById('npc-pawn');
+        nPawn.classList.add('jumping');
+        setTimeout(() => nPawn.classList.remove('jumping'), 400);
+
+        state.npcPos = Math.min(state.totalTiles, state.npcPos + npcSteps);
+        updatePawnPositions();
+
+        if(state.npcPos >= state.totalTiles) {
+            setTimeout(() => {
+                alert(`💔 Oh no! ${state.npcName} reached the END first!\nFinal Coins: ${state.score}`);
+                resetGame(true);
+            }, 800);
+        }
+    }
+
+    function nextQuestion() {
+        state.currentQ = (state.currentQ + 1) % words.length;
+        loadQuestion();
+    }
+
+    function updateHUD() {
+        document.getElementById('ui-energy-num').innerText = `${state.energy}/5`;
+        document.getElementById('ui-score').innerText = state.score;
+    }
+
+    function resetGame(showSelectModal = false) {
+        state.playerPos = 0; state.npcPos = 0; state.score = 25; state.energy = 3;
+        state.currentQ = 0; state.canRoll = true; state.canAnswer = false;
+        
+        if (showSelectModal) {
+            document.getElementById('char-select-modal').style.display = 'flex';
+        } else {
+            renderBoard(); loadQuestion(); updateHUD();
+        }
+    }
+
+    // Show initial modal on load
+    window.onload = () => { document.getElementById('char-select-modal').style.display = 'flex'; };
+
+</script>
+</body>
+</html>
