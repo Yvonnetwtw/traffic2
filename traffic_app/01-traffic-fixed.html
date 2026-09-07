@@ -790,7 +790,7 @@
 		
 
     <div class="middle-area">
-        <div class="timer-badge" id="ui-timer" style="display: none;">⏳ 5s</div>
+        <div class="timer-badge" id="ui-timer" style="display: none;">⏳ 10s</div>
         <div class="word-header">
             <div class="word-row">
                 <span class="word-text" id="ui-word">請先選擇角色</span>
@@ -987,7 +987,7 @@ async function fetchQuestions() {
 
    
     let timerInterval = null;
-    let timeLeft = 5;
+    let timeLeft = 10;
     const boardEl = document.getElementById('board');
     const wordEl = document.getElementById('ui-word');
     const phoneticEl = document.getElementById('ui-phonetic');
@@ -1332,7 +1332,7 @@ function loadQuestion() {
     startTimer();
 }
     function startTimer() {
-        timeLeft = 5; timerEl.style.display = 'block'; timerEl.innerText = `⏳ ${timeLeft}s`;
+        timeLeft = 10; timerEl.style.display = 'block'; timerEl.innerText = `⏳ ${timeLeft}s`;
         clearInterval(timerInterval);
         timerInterval = setInterval(() => {
             timeLeft--; timerEl.innerText = `⏳ ${timeLeft}s`;
