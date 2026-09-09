@@ -322,6 +322,30 @@
             filter: drop-shadow(0 8px 6px rgba(0,0,0,0.3));
         }
 
+        .character-tag {
+            position: absolute;
+            left: 50%;
+            bottom: -17px;
+            transform: translateX(-50%);
+            max-width: 92px;
+            padding: 2px 7px;
+            border: 2px solid white;
+            border-radius: 12px;
+            color: white;
+            font-size: 11px;
+            font-weight: 900;
+            line-height: 1.1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-shadow: 0 1px 2px rgba(0,0,0,.45);
+            box-shadow: 0 2px 5px rgba(0,0,0,.35);
+            pointer-events: none;
+        }
+
+        .character-tag.p1 { background: #2563eb; }
+        .character-tag.p2 { background: #db2777; }
+
         /* --- 2. MIDDLE AREA (QUESTION PANEL) --- */
         .middle-area {
             flex: 1;
@@ -1028,6 +1052,43 @@
             color: #ecfdf5;
         }
 
+        .player-status-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4px;
+            padding: 5px 6px;
+            background: #0f172a;
+        }
+
+        .player-status-card {
+            min-width: 0;
+            padding: 4px 5px;
+            border: 2px solid #475569;
+            border-radius: 9px;
+            background: #1e293b;
+            color: #e2e8f0;
+            font-size: 10px;
+            font-weight: 900;
+            line-height: 1.15;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: center;
+        }
+
+        .player-status-card.active-turn {
+            border-color: #fde047;
+            background: #166534;
+            color: white;
+            box-shadow: 0 0 9px rgba(253,224,71,.75);
+        }
+
+        .player-status-card.is-me::after {
+            content: ' YOU';
+            color: #fde047;
+            font-size: 8px;
+        }
+
         @media (max-width: 520px) {
             .room-actions { grid-template-columns: 1fr; }
             .room-card { padding: 18px; }
@@ -1140,8 +1201,13 @@
             </div>
 		<div class="console-top"> 
           <button class="dice-btn" id="dice-btn" onclick="rollDice()">🎲</button>   </div>
-        <div class="console-mid" id="console-mid-label">Level 1 ⭐ Beginner ⚡⚡</div>
-        
+	        <div class="console-mid" id="console-mid-label">Level 1 ⭐ Beginner ⚡⚡</div>
+
+            <div class="player-status-row">
+                <div class="player-status-card" id="p1-status-card">P1 等待加入</div>
+                <div class="player-status-card" id="p2-status-card">P2 等待加入</div>
+            </div>
+	        
 		<div class="console-bot">
             <div class="stat-pill">🔋 <span id="ui-progress">1/5</span></div>
             <div class="stat-pill">🛡️ 25</div>
@@ -1204,6 +1270,7 @@
 	const GAS_URL = 'https://script.google.com/macros/s/AKfycbx_Ki2cr4UCubPwK2PE-Oni--4yEEanO2uMh9ImK4cdJQdnkD3pPjT-PgpYKgmdcqWT/exec';
 
 	    let studentProfile = { name: '', email: '' };
+	    let pendingMascotType = '';
 
         const multiplayer = {
             roomCode: '',
@@ -1512,8 +1579,15 @@ async function fetchQuestions() {
 
         if (vocabularyList.length === 0) throw new Error('題目欄位格式不正確');
 
-        dataReady = true;
-        state.currentWordIndex = 0;
+	        dataReady = true;
+	        state.currentWordIndex = 0;
+
+	        if (pendingMascotType) {
+	            const queuedMascot = pendingMascotType;
+	            pendingMascotType = '';
+	            selectMascot(queuedMascot);
+	            return;
+	        }
 
         if (document.getElementById('selection-overlay').style.display === 'none') {
             showReadyScreen();
@@ -1649,6 +1723,20 @@ async function fetchQuestions() {
         }
     }
 
+    function updatePlayerStatusCards(p1, p2, turnPlayer, roomStatus) {
+        const p1Card = document.getElementById('p1-status-card');
+        const p2Card = document.getElementById('p2-status-card');
+        const setCard = (card, player, number) => {
+            card.textContent = player
+                ? `${mascotData[player.mascot]?.emoji || '🎮'} P${number} ${player.name}`
+                : `P${number} 等待加入`;
+            card.classList.toggle('active-turn', roomStatus === 'playing' && Number(turnPlayer) === number);
+            card.classList.toggle('is-me', multiplayer.playerNo === number);
+        };
+        setCard(p1Card, p1, 1);
+        setCard(p2Card, p2, 2);
+    }
+
     function applyRoomState(room) {
         if (!room) return;
         multiplayer.room = room;
@@ -1659,6 +1747,8 @@ async function fetchQuestions() {
         const me = players.find(p => Number(p.playerNo) === multiplayer.playerNo);
         const turnPlayer = players.find(p => Number(p.playerNo) === Number(room.turnPlayer));
         const roomStrip = document.getElementById('room-strip');
+
+        updatePlayerStatusCards(p1, p2, room.turnPlayer, room.status);
 
         if (me) document.getElementById('player-info').innerText = `👤 P${multiplayer.playerNo} ${me.name}`;
 
@@ -1813,12 +1903,13 @@ async function fetchQuestions() {
     }
 
 
-    function selectMascot(type) {
-    if (!validateStudentProfile()) return;
-    if (!dataReady) {
-        alert("⏳ Data loading... please wait");
-        return;
-    }
+	    function selectMascot(type) {
+	    if (!validateStudentProfile()) return;
+	    if (!dataReady) {
+	        pendingMascotType = type;
+	        document.getElementById('mascot-player-name').innerText = '⏳ 題目載入中，完成後會自動進入…';
+	        return;
+	    }
 state.playerType = type;
 state.gameStarted = false;
 diceBtn.classList.remove('bling-active');
@@ -1899,17 +1990,38 @@ openRoomLobby();
         });
     }
 
-    function initBoard() {
-        boardEl.querySelectorAll('.tile, .character').forEach(e => e.remove());
+	    function initBoard() {
+	        boardEl.querySelectorAll('.tile, .character').forEach(e => e.remove());
         boardPath.forEach((pt) => {
             const tile = document.createElement('div');
             tile.className = `tile ${pt.type}`; tile.style.left = `${pt.x}%`; tile.style.top = `${pt.y}%`; tile.innerText = pt.label;
             boardEl.appendChild(tile);
         });
-        npcEl = document.createElement('div'); npcEl.className = 'character'; npcEl.innerHTML = mascotData[state.npcType].svg; npcEl.style.zIndex = '15'; boardEl.appendChild(npcEl);
-        playerEl = document.createElement('div'); playerEl.className = 'character'; playerEl.innerHTML = mascotData[state.playerType].svg; playerEl.style.zIndex = '20'; boardEl.appendChild(playerEl);
-        updateCharacterPositions();
-    }
+	        const roomPlayers = multiplayer.room?.players || [];
+	        const p1 = roomPlayers.find(p => Number(p.playerNo) === 1);
+	        const p2 = roomPlayers.find(p => Number(p.playerNo) === 2);
+
+	        npcEl = document.createElement('div');
+	        npcEl.className = 'character';
+	        npcEl.innerHTML = mascotData[state.npcType].svg;
+	        npcEl.style.zIndex = '15';
+	        const p2Tag = document.createElement('div');
+	        p2Tag.className = 'character-tag p2';
+	        p2Tag.textContent = `P2 ${p2?.name || ''}`;
+	        npcEl.appendChild(p2Tag);
+	        boardEl.appendChild(npcEl);
+
+	        playerEl = document.createElement('div');
+	        playerEl.className = 'character';
+	        playerEl.innerHTML = mascotData[state.playerType].svg;
+	        playerEl.style.zIndex = '20';
+	        const p1Tag = document.createElement('div');
+	        p1Tag.className = 'character-tag p1';
+	        p1Tag.textContent = `P1 ${p1?.name || ''}`;
+	        playerEl.appendChild(p1Tag);
+	        boardEl.appendChild(playerEl);
+	        updateCharacterPositions();
+	    }
 
     function updateCharacterPositions() {
         const pPt = boardPath[state.playerPos]; const nPt = boardPath[state.npcPos];
